@@ -48,6 +48,7 @@ def validate_env_vars() -> None:
         print("\nOptional variables:")
         print("  CI_API_V4_URL        - GitLab API URL (default: https://gitlab.com/api/v4)")
         print("  REVIEW_MODE          - Review mode: 'line' or 'summary' (default: line)")
+        print("  REVIEW_LANGUAGE      - Language for review comments (default: en)")
         sys.exit(1)
 
 
@@ -60,6 +61,11 @@ def get_review_mode() -> str:
         return "line"
 
     return mode
+
+
+def get_review_language() -> str:
+    """Get review language from environment."""
+    return os.environ.get("REVIEW_LANGUAGE", "en")
 
 
 def main() -> int:
@@ -80,6 +86,10 @@ def main() -> int:
     # Get configuration
     review_mode = get_review_mode()
     logger.info(f"[INFO] Review mode: {review_mode}")
+
+    # Get review language
+    review_language = get_review_language()
+    logger.info(f"[INFO] Review language: {review_language}")
 
     # Get GitLab API URL
     gitlab_api_url = os.environ.get(
@@ -113,6 +123,7 @@ def main() -> int:
             llm_client=llm_client,
             config_loader=config_loader,
             mode=review_mode,
+            language=review_language,
         )
 
         # Run review

@@ -17,6 +17,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "max_comments": 10,
         "languages": ["python", "go", "javascript", "typescript", "java", "cpp", "c", "rust"],
         "ignore_paths": ["migrations/", "docs/", "vendor/", "node_modules/", ".git/"],
+        "language": "en",
     },
     "ai": {
         "temperature": 0.3,
@@ -100,6 +101,7 @@ class ConfigLoader:
             "REVIEW_TEMPERATURE": ("ai", "temperature", float),
             "REVIEW_MAX_TOKENS": ("ai", "max_tokens", int),
             "REVIEW_MODEL": ("ai", "model", str),
+            "REVIEW_LANGUAGE": ("review", "language", str),
         }
 
         for env_var, path_parts, converter in [

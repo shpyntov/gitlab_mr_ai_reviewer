@@ -5,6 +5,10 @@ review:
   # Maximum number of comments to post per MR
   max_comments: 10
 
+  # Language for review comments (e.g., 'en', 'ru', 'zh', 'es')
+  # Can also be set via REVIEW_LANGUAGE environment variable
+  language: en
+
   # Programming languages to review (empty = all supported languages)
   languages:
     - python

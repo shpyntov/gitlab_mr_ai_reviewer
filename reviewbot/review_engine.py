@@ -25,6 +25,7 @@ class ReviewEngine:
         llm_client: LLMClient,
         config_loader: ConfigLoader,
         mode: str = "line",
+        language: str = "en",
     ) -> None:
         """
         Initialize review engine.
@@ -34,11 +35,13 @@ class ReviewEngine:
             llm_client: LLM client for AI analysis
             config_loader: Configuration loader
             mode: Review mode ('line' or 'summary')
+            language: Language for review comments (e.g., 'en', 'ru', 'zh')
         """
         self.gitlab_client = gitlab_client
         self.llm_client = llm_client
         self.config_loader = config_loader
         self.mode = mode
+        self.language = language
         self.diff_parser = DiffParser()
 
         self._prompt_templates: dict[str, str] = {}
@@ -75,6 +78,8 @@ class ReviewEngine:
 {diff_content}
 ```
 
+Language: All feedback must be written in: {language}
+
 Return a JSON array of review items. Each item must have:
 - "file": the file path
 - "line": the line number (new version)
@@ -102,6 +107,8 @@ Example output:
 ```diff
 {all_changes}
 ```
+
+Language: All feedback must be written in: {language}
 
 Provide a structured review in markdown format:
 
@@ -188,6 +195,9 @@ Be concise. Focus on high-impact issues only. Limit to top 10 items total."""
             "summary", self._get_default_prompt("summary")
         )
 
+        # Inject language into prompt
+        prompt = prompt.format(language=self.language)
+
         # Generate review
         summary = self.llm_client.review_summary(all_changes, prompt)
 
@@ -217,6 +227,9 @@ Be concise. Focus on high-impact issues only. Limit to top 10 items total."""
         commit_id = self.gitlab_client.get_commit_id()
 
         prompt = self._prompt_templates.get("line", self._get_default_prompt("line"))
+
+        # Inject language into prompt
+        prompt = prompt.format(language=self.language)
 
         for file_diff in files_to_review:
             if comments_posted >= max_comments:

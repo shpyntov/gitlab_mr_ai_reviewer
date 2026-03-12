@@ -88,6 +88,7 @@ ai_code_review:
 | `CI_MERGE_REQUEST_IID` | Yes | Merge request IID |
 | `CI_API_V4_URL` | No | GitLab API URL (default: `https://gitlab.com/api/v4`) |
 | `REVIEW_MODE` | No | Review mode: `line` or `summary` (default: `line`) |
+| `REVIEW_LANGUAGE` | No | Language for review comments (default: `en`). Examples: `en`, `ru`, `zh`, `es` |
 
 ### Repository Configuration (.reviewbot.yml)
 
@@ -97,6 +98,9 @@ Create a `.reviewbot.yml` file in your repository root to customize behavior:
 review:
   # Maximum comments per MR
   max_comments: 10
+
+  # Language for review comments (e.g., 'en', 'ru', 'zh', 'es')
+  language: en
 
   # Languages to review
   languages:
