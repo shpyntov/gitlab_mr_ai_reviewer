@@ -295,5 +295,5 @@ Be concise. Focus on high-impact issues only. Limit to top 10 items total."""
 
     def _format_summary_comment(self, summary: str, max_items: int = 10) -> str:
         """Format a summary comment."""
-        header = "## AI Code Review Summary\n\n"
-        return header + summary[:5000]  # Limit total size
+        # LLM already includes the header in its response
+        return summary[:5000]  # Limit total size
