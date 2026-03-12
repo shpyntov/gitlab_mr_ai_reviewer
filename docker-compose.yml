@@ -1,0 +1,31 @@
+# Docker Compose for local testing of GitLab MR AI Reviewer
+# Note: In CI, environment variables are provided by GitLab
+
+version: '3.8'
+
+services:
+  reviewbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      # Required: LLM API key
+      - API_KEY=${API_KEY:-}
+      
+      # Required: GitLab token (personal access token with api scope)
+      - GITLAB_TOKEN=${GITLAB_TOKEN:-}
+      
+      # Required: GitLab project ID
+      - CI_PROJECT_ID=${CI_PROJECT_ID:-}
+      
+      # Required: Merge request IID
+      - CI_MERGE_REQUEST_IID=${CI_MERGE_REQUEST_IID:-}
+      
+      # Optional: GitLab API URL (defaults to gitlab.com)
+      - CI_API_V4_URL=${CI_API_V4_URL:-https://gitlab.com/api/v4}
+      
+      # Optional: Review mode (line or summary)
+      - REVIEW_MODE=${REVIEW_MODE:-line}
+    volumes:
+      # Mount local config for testing
+      - ./.reviewbot.yml:/app/.reviewbot.yml:ro

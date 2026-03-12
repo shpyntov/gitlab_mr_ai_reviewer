@@ -1,0 +1,33 @@
+# Reviewbot Configuration
+# Place this file in your repository root as .reviewbot.yml
+
+review:
+  # Maximum number of comments to post per MR
+  max_comments: 10
+
+  # Programming languages to review (empty = all supported languages)
+  languages:
+    - python
+    - go
+    - javascript
+    - typescript
+
+  # Path patterns to ignore
+  ignore_paths:
+    - migrations/
+    - docs/
+    - vendor/
+    - node_modules/
+    - test/
+    - __pycache__/
+
+ai:
+  # LLM temperature (0.0 = deterministic, 1.0 = creative)
+  # Lower values = more focused, higher values = more creative suggestions
+  temperature: 0.3
+
+  # Maximum tokens in response
+  max_tokens: 2000
+
+  # Model to use (must be available in your LLM provider)
+  model: zai-org/GLM-4.6

@@ -1,0 +1,10 @@
+# Python dependencies for GitLab MR AI Reviewer
+
+# OpenAI SDK for LLM integration
+openai>=1.0.0
+
+# HTTP client for GitLab API
+requests>=2.31.0
+
+# YAML configuration parsing
+pyyaml>=6.0

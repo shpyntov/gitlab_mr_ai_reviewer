@@ -1,0 +1,42 @@
+# GitLab CI Configuration for AI Code Review
+# Copy this to .gitlab-ci.yml in your project
+
+stages:
+  - test
+  - review
+
+# AI Code Review job
+# Runs on merge request pipelines
+ai_code_review:
+  image:
+    name: reviewbot:latest
+    # Or build from Dockerfile:
+    # docker:
+    #   build:
+    #     context: .
+    #     dockerfile: Dockerfile
+  stage: review
+  variables:
+    # Review mode: 'line' for inline comments, 'summary' for single comment
+    REVIEW_MODE: line
+  rules:
+    # Only run on merge request pipelines
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_MERGE_REQUEST_ID
+  script:
+    - python -m reviewbot.main
+  allow_failure: true  # Don't block MR on review failures
+  timeout: 10m
+
+# Optional: Build the reviewbot image
+.build_reviewbot:
+  image: docker:24
+  services:
+    - docker:24-dind
+  stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  script:
+    - docker build -t reviewbot:latest .
+  only:
+    - main
