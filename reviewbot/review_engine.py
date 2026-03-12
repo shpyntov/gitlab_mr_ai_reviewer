@@ -19,6 +19,52 @@ logger = logging.getLogger(__name__)
 class ReviewEngine:
     """Main review engine coordinating all components."""
 
+    # Section headers for different languages
+    SECTION_HEADERS: dict[str, dict[str, str]] = {
+        "en": {
+            "summary_title": "AI Code Review Summary",
+            "potential_issues": "Potential Issues",
+            "improvements": "Improvements",
+            "positive_notes": "Positive Notes",
+            "no_issues": "No significant issues found.",
+        },
+        "ru": {
+            "summary_title": "Итоги код-ревью",
+            "potential_issues": "Возможные проблемы",
+            "improvements": "Рекомендации",
+            "positive_notes": "Положительные моменты",
+            "no_issues": "Значительных проблем не обнаружено.",
+        },
+        "zh": {
+            "summary_title": "AI 代码审查总结",
+            "potential_issues": "潜在问题",
+            "improvements": "改进建议",
+            "positive_notes": "优点",
+            "no_issues": "未发现重大问题。",
+        },
+        "es": {
+            "summary_title": "Resumen de revisión de código",
+            "potential_issues": "Problemas potenciales",
+            "improvements": "Mejoras",
+            "positive_notes": "Aspectos positivos",
+            "no_issues": "No se encontraron problemas significativos.",
+        },
+        "de": {
+            "summary_title": "Zusammenfassung der Code-Überprüfung",
+            "potential_issues": "Mögliche Probleme",
+            "improvements": "Verbesserungen",
+            "positive_notes": "Positive Aspekte",
+            "no_issues": "Keine wesentlichen Probleme festgestellt.",
+        },
+        "fr": {
+            "summary_title": "Résumé de la revue de code",
+            "potential_issues": "Problèmes potentiels",
+            "improvements": "Améliorations",
+            "positive_notes": "Points positifs",
+            "no_issues": "Aucun problème significatif trouvé.",
+        },
+    }
+
     def __init__(
         self,
         gitlab_client: GitLabClient,
@@ -69,16 +115,40 @@ class ReviewEngine:
                 logger.warning(f"Prompt file not found: {file_path}")
                 self._prompt_templates[key] = self._get_default_prompt(key)
 
+        # Apply language-specific headers to summary prompt
+        if "summary" in self._prompt_templates:
+            self._apply_language_headers()
+
+    def _apply_language_headers(self) -> None:
+        """Apply language-specific headers to the summary prompt template."""
+        headers = self.SECTION_HEADERS.get(self.language, self.SECTION_HEADERS["en"])
+
+        # Replace English headers with localized ones
+        replacements = {
+            "## AI Code Review Summary": f"## {headers['summary_title']}",
+            "### Potential Issues": f"### {headers['potential_issues']}",
+            "### Improvements": f"### {headers['improvements']}",
+            "### Positive Notes": f"### {headers['positive_notes']}",
+            "No significant issues found.": headers["no_issues"],
+        }
+
+        prompt = self._prompt_templates["summary"]
+        for old, new in replacements.items():
+            prompt = prompt.replace(old, new)
+        self._prompt_templates["summary"] = prompt
+
     def _get_default_prompt(self, prompt_type: str) -> str:
         """Get default prompt template."""
+        headers = self.SECTION_HEADERS.get(self.language, self.SECTION_HEADERS["en"])
+
         if prompt_type == "line":
-            return """Analyze the following code changes in file `{file_path}`:
+            return f"""Analyze the following code changes in file `{{file_path}}`:
 
 ```diff
-{diff_content}
+{{diff_content}}
 ```
 
-Language: All feedback must be written in: {language}
+Language: All feedback must be written in: {{language}}
 
 Return a JSON array of review items. Each item must have:
 - "file": the file path
@@ -102,28 +172,31 @@ Example output:
   {{"file": "app.py", "line": 42, "issue": "Possible None dereference", "suggestion": "Add null check"}}
 ]"""
         else:
-            return """Analyze the following code changes and provide a summary review:
+            return f"""Analyze the following code changes and provide a summary review:
 
 ```diff
-{all_changes}
+{{all_changes}}
 ```
 
-Language: All feedback must be written in: {language}
+Language: All feedback must be written in: {{language}}
 
 Provide a structured review in markdown format:
 
-## AI Code Review Summary
+## {headers["summary_title"]}
 
-### Potential Issues
+### {headers["potential_issues"]}
 - List significant issues
 
-### Improvements
+### {headers["improvements"]}
 - Suggest improvements
 
-### Positive Notes
+### {headers["positive_notes"]}
 - Highlight good practices
 
-Be concise. Focus on high-impact issues only. Limit to top 10 items total."""
+Be concise. Focus on high-impact issues only. Limit to top 10 items total.
+
+If no significant issues found, state: "{headers["no_issues"]}"
+"""
 
     def run_review(self) -> bool:
         """
