@@ -195,8 +195,8 @@ Be concise. Focus on high-impact issues only. Limit to top 10 items total."""
             "summary", self._get_default_prompt("summary")
         )
 
-        # Inject language into prompt
-        prompt = prompt.format(language=self.language)
+        # Inject language into prompt (use double braces to escape other placeholders)
+        prompt = prompt.replace("{language}", self.language)
 
         # Generate review
         summary = self.llm_client.review_summary(all_changes, prompt)
@@ -228,8 +228,8 @@ Be concise. Focus on high-impact issues only. Limit to top 10 items total."""
 
         prompt = self._prompt_templates.get("line", self._get_default_prompt("line"))
 
-        # Inject language into prompt
-        prompt = prompt.format(language=self.language)
+        # Inject language into prompt (use double braces to escape other placeholders)
+        prompt = prompt.replace("{language}", self.language)
 
         for file_diff in files_to_review:
             if comments_posted >= max_comments:
