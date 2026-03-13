@@ -202,17 +202,35 @@ class LLMClient:
                     logger.warning(f"Skipping non-dict item: {type(item)}")
                     continue
 
-                # Validate 'file' field
+                # Validate 'file' field - use .get() to avoid KeyError
                 file_value = item.get("file", file_path)
                 if not isinstance(file_value, str):
                     logger.warning(f"Invalid 'file' field type: {type(file_value)}, expected string")
                     file_value = file_path
 
+                # Validate 'line' field - use .get() to avoid KeyError
+                line_value = item.get("line", 0)
+                if not isinstance(line_value, (int, float)):
+                    logger.warning(f"Invalid 'line' field type: {type(line_value)}, expected int")
+                    line_value = 0
+
+                # Validate 'issue' field - use .get() to avoid KeyError
+                issue_value = item.get("issue", "Code issue")
+                if not isinstance(issue_value, str):
+                    logger.warning(f"Invalid 'issue' field type: {type(issue_value)}, expected string")
+                    issue_value = "Code issue"
+
+                # Validate 'suggestion' field - use .get() to avoid KeyError
+                suggestion_value = item.get("suggestion", "")
+                if not isinstance(suggestion_value, str):
+                    logger.warning(f"Invalid 'suggestion' field type: {type(suggestion_value)}, expected string")
+                    suggestion_value = ""
+
                 review_item = {
                     "file": file_value,
-                    "line": item.get("line", 0),
-                    "issue": item.get("issue", "Code issue"),
-                    "suggestion": item.get("suggestion", ""),
+                    "line": int(line_value) if isinstance(line_value, (int, float)) else 0,
+                    "issue": issue_value,
+                    "suggestion": suggestion_value,
                 }
 
                 # Validate required fields
@@ -226,10 +244,6 @@ class LLMClient:
             logger.debug(f"Raw response content: {content[:500]}...")
             # Fallback: try to extract JSON from markdown code blocks
             return self._extract_json_from_markdown(content, file_path)
-        except KeyError as e:
-            logger.error(f"Missing required field in review item: {e}")
-            logger.debug(f"Raw response content: {content[:500]}...")
-            return []
         except Exception as e:
             logger.error(f"Unexpected error parsing review response: {e}")
             logger.debug(f"Raw response content: {content[:500]}...")
