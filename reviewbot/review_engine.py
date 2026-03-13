@@ -213,9 +213,7 @@ If no significant issues found, state: "{headers["no_issues"]}"
         summary = self.llm_client.review_summary(all_changes, prompt)
 
         # Post comment
-        max_comments = self.config_loader.get("review", "max_comments", default=10)
-
-        comment_body = self._format_summary_comment(summary, max_comments)
+        comment_body = self._format_summary_comment(summary)
 
         if not self.gitlab_client.is_duplicate_comment(comment_body):
             self.gitlab_client.post_summary_comment(comment_body)
@@ -225,7 +223,7 @@ If no significant issues found, state: "{headers["no_issues"]}"
 
         return True
 
-    def _format_summary_comment(self, summary: str, max_items: int = 10) -> str:
+    def _format_summary_comment(self, summary: str) -> str:
         """Format a summary comment."""
         # LLM already includes the header in its response
         return summary[:5000]  # Limit total size

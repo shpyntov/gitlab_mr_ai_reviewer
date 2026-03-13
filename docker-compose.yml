@@ -29,7 +29,5 @@ services:
       - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.3}
       # Optional: Max tokens
       - LLM_MAX_TOKENS=${LLM_MAX_TOKENS:-2000}
-      # Optional: Max comments
-      - LLM_MAX_COMMENTS=${LLM_MAX_COMMENTS:-10}
       # Optional: Review language
       - REVIEW_LANGUAGE=${REVIEW_LANGUAGE:-ru}
