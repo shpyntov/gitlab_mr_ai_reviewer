@@ -16,9 +16,6 @@ ai_code_review:
     #     context: .
     #     dockerfile: Dockerfile
   stage: review
-  variables:
-    # Review mode: 'line' for inline comments, 'summary' for single comment
-    REVIEW_MODE: line
   rules:
     # Only run on merge request pipelines
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"

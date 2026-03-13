@@ -164,18 +164,12 @@ class GitLabClient:
     def post_comment(
         self,
         body: str,
-        file_path: str | None = None,
-        line_number: int | None = None,
-        commit_id: str | None = None,
     ) -> dict[str, Any]:
         """
         Post a comment to the merge request.
 
         Args:
             body: Comment text (markdown supported)
-            file_path: Optional file path for inline comment
-            line_number: Optional line number for inline comment
-            commit_id: Optional commit SHA for the comment
 
         Returns:
             Created comment data
@@ -187,41 +181,10 @@ class GitLabClient:
 
         data: dict[str, Any] = {"body": body}
 
-        if file_path and line_number:
-            data["position"] = {
-                "base_sha": commit_id or "HEAD",
-                "start_sha": commit_id or "HEAD",
-                "head_sha": commit_id or "HEAD",
-                "position_type": "text",
-                "new_path": file_path,
-                "new_line": line_number,
-            }
-
-        logger.info(f"[INFO] Posting comment to {file_path}:{line_number if line_number else 'discussion'}")
+        logger.info(f"[INFO] Posting comment")
 
         response = self._make_request("POST", endpoint, data)
         return response.json()
-
-    def post_line_comment(
-        self,
-        body: str,
-        file_path: str,
-        line_number: int,
-        commit_id: str | None = None,
-    ) -> dict[str, Any]:
-        """
-        Post an inline comment on a specific line.
-
-        Args:
-            body: Comment text
-            file_path: File path
-            line_number: Line number in the new version
-            commit_id: Commit SHA
-
-        Returns:
-            Created comment data
-        """
-        return self.post_comment(body, file_path, line_number, commit_id)
 
     def post_summary_comment(self, body: str) -> dict[str, Any]:
         """
@@ -238,16 +201,12 @@ class GitLabClient:
     def is_duplicate_comment(
         self,
         body: str,
-        file_path: str | None = None,
-        line_number: int | None = None,
     ) -> bool:
         """
         Check if a similar comment already exists.
 
         Args:
             body: Comment body to check
-            file_path: Optional file path
-            line_number: Optional line number
 
         Returns:
             True if duplicate found, False otherwise
@@ -261,14 +220,6 @@ class GitLabClient:
             # Check if it's a bot comment (from this reviewer)
             if not self._is_bot_comment(comment):
                 continue
-
-            # For line comments, check position match
-            if file_path and line_number:
-                position = comment.get("position", {})
-                if position.get("new_path") != file_path:
-                    continue
-                if position.get("new_line") != line_number:
-                    continue
 
             # Check body similarity
             existing_body = comment.get("body", "")

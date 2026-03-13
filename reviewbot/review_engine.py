@@ -35,62 +35,6 @@ class ReviewEngine:
             "positive_notes": "Положительные моменты",
             "no_issues": "Значительных проблем не обнаружено.",
         },
-        "zh": {
-            "summary_title": "AI 代码审查",
-            "potential_issues": "潜在问题",
-            "improvements": "改进建议",
-            "positive_notes": "优点",
-            "no_issues": "未发现重大问题。",
-        },
-        "es": {
-            "summary_title": "Resumen de revisión de código con IA",
-            "potential_issues": "Problemas potenciales",
-            "improvements": "Mejoras",
-            "positive_notes": "Aspectos positivos",
-            "no_issues": "No se encontraron problemas significativos.",
-        },
-        "de": {
-            "summary_title": "KI-Code-Überprüfung",
-            "potential_issues": "Mögliche Probleme",
-            "improvements": "Verbesserungen",
-            "positive_notes": "Positive Aspekte",
-            "no_issues": "Keine wesentlichen Probleme festgestellt.",
-        },
-        "fr": {
-            "summary_title": "Révision de code par IA",
-            "potential_issues": "Problèmes potentiels",
-            "improvements": "Améliorations",
-            "positive_notes": "Points positifs",
-            "no_issues": "Aucun problème significatif trouvé.",
-        },
-        "pt": {
-            "summary_title": "Revisão de código com IA",
-            "potential_issues": "Problemas potenciais",
-            "improvements": "Melhorias",
-            "positive_notes": "Aspectos positivos",
-            "no_issues": "Nenhum problema significativo encontrado.",
-        },
-        "ja": {
-            "summary_title": "AI コードレビュー",
-            "potential_issues": "潜在的な問題",
-            "improvements": "改善提案",
-            "positive_notes": "良い点",
-            "no_issues": "重大な問題は見つかりませんでした。",
-        },
-        "ko": {
-            "summary_title": "AI 코드 리뷰",
-            "potential_issues": "잠재적 문제",
-            "improvements": "개선 사항",
-            "positive_notes": "좋은 점",
-            "no_issues": "중요한 문제가 발견되지 않았습니다.",
-        },
-        "it": {
-            "summary_title": "Revisione codice con IA",
-            "potential_issues": "Problemi potenziali",
-            "improvements": "Miglioramenti",
-            "positive_notes": "Aspetti positivi",
-            "no_issues": "Nessun problema significativo trovato.",
-        },
     }
 
     def __init__(
@@ -98,7 +42,6 @@ class ReviewEngine:
         gitlab_client: GitLabClient,
         llm_client: LLMClient,
         config_loader: ConfigLoader,
-        mode: str = "line",
         language: str = "en",
     ) -> None:
         """
@@ -108,13 +51,11 @@ class ReviewEngine:
             gitlab_client: GitLab API client
             llm_client: LLM client for AI analysis
             config_loader: Configuration loader
-            mode: Review mode ('line' or 'summary')
             language: Language for review comments (e.g., 'en', 'ru', 'zh')
         """
         self.gitlab_client = gitlab_client
         self.llm_client = llm_client
         self.config_loader = config_loader
-        self.mode = mode
         self.language = language
         self.diff_parser = DiffParser()
 
@@ -133,15 +74,15 @@ class ReviewEngine:
 
         prompts_path = Path(prompts_dir)
 
-        for prompt_file in ["line_review_prompt.md", "summary_review_prompt.md"]:
-            file_path = prompts_path / prompt_file
-            if file_path.exists():
-                with open(file_path, "r", encoding="utf-8") as f:
-                    key = prompt_file.replace("_prompt.md", "")
-                    self._prompt_templates[key] = f.read()
-            else:
-                logger.warning(f"Prompt file not found: {file_path}")
-                self._prompt_templates[key] = self._get_default_prompt(key)
+        prompt_file = "summary_review_prompt.md"
+        file_path = prompts_path / prompt_file
+        if file_path.exists():
+            with open(file_path, "r", encoding="utf-8") as f:
+                key = prompt_file.replace("_prompt.md", "")
+                self._prompt_templates[key] = f.read()
+        else:
+            logger.warning(f"Prompt file not found: {file_path}")
+            self._prompt_templates[key] = self._get_default_prompt(key)
 
         # Apply language-specific headers to summary prompt
         if "summary" in self._prompt_templates:
@@ -169,38 +110,7 @@ class ReviewEngine:
         """Get default prompt template."""
         headers = self.SECTION_HEADERS.get(self.language, self.SECTION_HEADERS["en"])
 
-        if prompt_type == "line":
-            return f"""Analyze the following code changes in file `{{file_path}}`:
-
-```diff
-{{diff_content}}
-```
-
-Language: All feedback must be written in: {{language}}
-
-Return a JSON array of review items. Each item must have:
-- "file": the file path (use the actual file path, e.g., "app.py")
-- "line": the line number (new version)
-- "issue": brief description of the issue
-- "suggestion": how to fix it (optional)
-
-Focus on:
-- Bugs and potential errors
-- Security vulnerabilities
-- Performance issues
-- Code quality problems
-
-Ignore:
-- Formatting (unless critical)
-- Obvious/trivial changes
-- Comments and documentation
-
-Example output:
-[
-  {{"file": "app.py", "line": 42, "issue": "Possible None dereference", "suggestion": "Add null check"}}
-]"""
-        else:
-            return f"""Analyze the following code changes and provide a summary review:
+        return f"""Analyze the following code changes and provide a summary review:
 
 ```diff
 {{all_changes}}
@@ -260,11 +170,8 @@ If no significant issues found, state: "{headers["no_issues"]}"
                 logger.info("[INFO] No files match review criteria")
                 return True
 
-            # Execute review based on mode
-            if self.mode == "summary":
-                return self._run_summary_review(mr_diff, files_to_review)
-            else:
-                return self._run_line_review(mr_diff, files_to_review)
+            # Execute summary review
+            return self._run_summary_review(mr_diff, files_to_review)
 
         except Exception as e:
             logger.error(f"Review failed: {e}")
@@ -317,91 +224,6 @@ If no significant issues found, state: "{headers["no_issues"]}"
             logger.info("[INFO] Skipping duplicate summary comment")
 
         return True
-
-    def _run_line_review(
-        self, mr_diff: MRDiff, files_to_review: list[FileDiff]
-    ) -> bool:
-        """Execute line review mode."""
-        logger.info("[INFO] Running line review")
-
-        max_comments = self.config_loader.get("review", "max_comments", default=10)
-        comments_posted = 0
-
-        # Get commit ID for inline comments
-        commit_id = self.gitlab_client.get_commit_id()
-
-        # Get prompt template
-        prompt = self._prompt_templates.get("line", self._get_default_prompt("line"))
-        
-        # Inject language into prompt
-        # We need to be careful with the replacement to avoid conflicts with other placeholders
-        # First replace {language} placeholder
-        prompt = prompt.replace("{language}", self.language)
-        
-        # Escape other placeholders that should not be processed yet
-        prompt = prompt.replace("{file_path}", "{{file_path}}").replace("{diff_content}", "{{diff_content}}")
-
-        for file_diff in files_to_review:
-            if comments_posted >= max_comments:
-                logger.info(f"[INFO] Reached max comments limit ({max_comments})")
-                break
-
-            # Build diff for this file
-            diff_content = ""
-            for hunk in file_diff.hunks:
-                diff_content += hunk.content
-
-            if not diff_content.strip():
-                continue
-
-            # Get LLM review
-            reviews = self.llm_client.review_line_changes(
-                diff_content, file_diff.path, prompt
-            )
-
-            # Post comments
-            for review in reviews:
-                if comments_posted >= max_comments:
-                    break
-
-                line_num = review.get("line", 0)
-                issue = review.get("issue", "")
-                suggestion = review.get("suggestion", "")
-
-                if not line_num or not issue:
-                    continue
-
-                comment_body = self._format_line_comment(issue, suggestion)
-
-                if not self.gitlab_client.is_duplicate_comment(
-                    comment_body, file_diff.path, line_num
-                ):
-                    self.gitlab_client.post_line_comment(
-                        comment_body,
-                        file_diff.path,
-                        line_num,
-                        commit_id,
-                    )
-                    comments_posted += 1
-                    logger.info(
-                        f"[INFO] Posted comment on {file_diff.path}:{line_num}"
-                    )
-                else:
-                    logger.info(
-                        f"[INFO] Skipping duplicate comment on {file_diff.path}:{line_num}"
-                    )
-
-        logger.info(f"[INFO] Posted {comments_posted} comments")
-        return True
-
-    def _format_line_comment(self, issue: str, suggestion: str = "") -> str:
-        """Format a line comment."""
-        comment = f"⚠️ Issue:\n{issue}\n"
-
-        if suggestion:
-            comment += f"\n💡 Suggestion:\n{suggestion}"
-
-        return comment
 
     def _format_summary_comment(self, summary: str, max_items: int = 10) -> str:
         """Format a summary comment."""

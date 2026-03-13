@@ -27,10 +27,11 @@ def setup_logging() -> None:
 def validate_env_vars() -> None:
     """Validate required environment variables."""
     required_vars = [
-        "API_KEY",
+        "LLM_API_KEY",
         "GITLAB_TOKEN",
-        "CI_PROJECT_ID",
-        "CI_MERGE_REQUEST_IID",
+        "GITLAB_PROJECT_ID",
+        "GITLAB_MERGE_REQUEST_ID",
+        "GITLAB_BASE_URL",
     ]
 
     missing = []
@@ -41,31 +42,25 @@ def validate_env_vars() -> None:
     if missing:
         print(f"Error: Missing required environment variables: {', '.join(missing)}")
         print("\nRequired variables:")
-        print("  API_KEY              - LLM API key")
-        print("  GITLAB_TOKEN         - GitLab personal access token")
-        print("  CI_PROJECT_ID        - GitLab project ID")
-        print("  CI_MERGE_REQUEST_IID - Merge request IID")
+        print("  LLM_API_KEY                - LLM API key")
+        print("  GITLAB_TOKEN               - GitLab personal access token")
+        print("  GITLAB_PROJECT_ID          - GitLab project ID")
+        print("  GITLAB_MERGE_REQUEST_ID    - Merge request ID")
+        print("  GITLAB_BASE_URL            - GitLab base URL (e.g., https://gitlab.com)")
         print("\nOptional variables:")
-        print("  CI_API_V4_URL        - GitLab API URL (default: https://gitlab.com/api/v4)")
-        print("  REVIEW_MODE          - Review mode: 'line' or 'summary' (default: line)")
-        print("  REVIEW_LANGUAGE      - Language for review comments (default: en)")
+        print("  REVIEW_LANGUAGE            - Language for review comments (default: ru)")
         sys.exit(1)
-
-
-def get_review_mode() -> str:
-    """Get review mode from environment."""
-    mode = os.environ.get("REVIEW_MODE", "line").lower()
-
-    if mode not in ("line", "summary"):
-        print(f"Warning: Invalid REVIEW_MODE '{mode}', defaulting to 'line'")
-        return "line"
-
-    return mode
 
 
 def get_review_language() -> str:
     """Get review language from environment."""
-    return os.environ.get("REVIEW_LANGUAGE", "en")
+    language = os.environ.get("REVIEW_LANGUAGE", "ru").lower()
+
+    if language not in ("en", "ru"):
+        print(f"Warning: Invalid REVIEW_LANGUAGE '{language}', defaulting to 'ru'")
+        return "ru"
+
+    return language
 
 
 def main() -> int:
@@ -84,26 +79,24 @@ def main() -> int:
     validate_env_vars()
 
     # Get configuration
-    review_mode = get_review_mode()
-    logger.info(f"[INFO] Review mode: {review_mode}")
+    logger.info("[INFO] Review mode: summary")
 
     # Get review language
     review_language = get_review_language()
     logger.info(f"[INFO] Review language: {review_language}")
 
-    # Get GitLab API URL
-    gitlab_api_url = os.environ.get(
-        "CI_API_V4_URL",
-        "https://gitlab.com/api/v4"
-    )
+    # Get GitLab base URL
+    gitlab_base_url = os.environ.get("GITLAB_BASE_URL")
+    # Append /api/v4 to the base URL
+    gitlab_api_url = f"{gitlab_base_url.rstrip('/')}/api/v4"
 
     # Initialize components
     try:
         gitlab_config = GitLabConfig(
             token=os.environ["GITLAB_TOKEN"],
             api_url=gitlab_api_url,
-            project_id=os.environ["CI_PROJECT_ID"],
-            merge_request_iid=os.environ["CI_MERGE_REQUEST_IID"],
+            project_id=os.environ["GITLAB_PROJECT_ID"],
+            merge_request_iid=os.environ["GITLAB_MERGE_REQUEST_ID"],
         )
 
         gitlab_client = GitLabClient(gitlab_config)
@@ -112,7 +105,7 @@ def main() -> int:
         config_loader = ConfigLoader()
 
         llm_client = LLMClient(
-            api_key=os.environ["API_KEY"],
+            api_key=os.environ["LLM_API_KEY"],
             model=config_loader.get("ai", "model"),
             temperature=config_loader.get("ai", "temperature", default=0.3),
             max_tokens=config_loader.get("ai", "max_tokens", default=2000),
@@ -122,7 +115,6 @@ def main() -> int:
             gitlab_client=gitlab_client,
             llm_client=llm_client,
             config_loader=config_loader,
-            mode=review_mode,
             language=review_language,
         )
 

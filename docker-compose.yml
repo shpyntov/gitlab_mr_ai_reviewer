@@ -10,31 +10,26 @@ services:
       dockerfile: Dockerfile
     environment:
       # Required: LLM API key
-      - API_KEY=${API_KEY:-}
-      
+      - LLM_API_KEY=${LLM_API_KEY:-}
+
       # Required: GitLab token (personal access token with api scope)
       - GITLAB_TOKEN=${GITLAB_TOKEN:-}
-      
+
       # Required: GitLab project ID
-      - CI_PROJECT_ID=${CI_PROJECT_ID:-}
-      
+      - GITLAB_PROJECT_ID=${GITLAB_PROJECT_ID:-}
+
       # Required: Merge request IID
-      - CI_MERGE_REQUEST_IID=${CI_MERGE_REQUEST_IID:-}
-      
-      # Optional: GitLab API URL (defaults to gitlab.com)
-      - CI_API_V4_URL=${CI_API_V4_URL:-https://gitlab.com/api/v4}
-      
-      # Optional: Review mode (line or summary)
-      - REVIEW_MODE=${REVIEW_MODE:-line}
-      # Optional: Default model
-      - DEFAULT_MODEL=${DEFAULT_MODEL:-Qwen/Qwen3-Coder-480B-A35B-Instruct}
-      # Optional: Override model
-      - REVIEW_MODEL=${REVIEW_MODEL:-}
+      - GITLAB_MERGE_REQUEST_ID=${GITLAB_MERGE_REQUEST_ID:-}
+
+      # Required: GitLab base URL
+      - GITLAB_BASE_URL=${GITLAB_BASE_URL}
+      # Optional: Model name
+      - LLM_MODEL=${LLM_MODEL:-Qwen/Qwen3-Coder-480B-A35B-Instruct}
       # Optional: Temperature setting
-      - REVIEW_TEMPERATURE=${REVIEW_TEMPERATURE:-0.3}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.3}
       # Optional: Max tokens
-      - REVIEW_MAX_TOKENS=${REVIEW_MAX_TOKENS:-2000}
+      - LLM_MAX_TOKENS=${LLM_MAX_TOKENS:-2000}
       # Optional: Max comments
-      - REVIEW_MAX_COMMENTS=${REVIEW_MAX_COMMENTS:-10}
+      - LLM_MAX_COMMENTS=${LLM_MAX_COMMENTS:-10}
       # Optional: Review language
-      - REVIEW_LANGUAGE=${REVIEW_LANGUAGE:-en}
+      - REVIEW_LANGUAGE=${REVIEW_LANGUAGE:-ru}

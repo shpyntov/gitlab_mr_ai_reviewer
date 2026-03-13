@@ -4,23 +4,21 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Docker](https://img.shields.io/badge/docker-containerized-blue.svg)](https://www.docker.com/)
 
-**Automated AI-powered code review for GitLab Merge Requests.**
+**Автоматический анализ кода с помощью ИИ для Merge Request в GitLab.**
 
-A production-ready Python service that integrates with GitLab CI to analyze merge request changes using Large Language Models (LLMs). Provides intelligent feedback on bugs, security issues, performance problems, and code quality.
+Готовое к продакшену Python-решение, которое интегрируется с GitLab CI и анализирует изменения в merge request с использованием больших языковых моделей (LLM). Предоставляет интеллектуальную обратную связь об ошибках, проблемах безопасности, производительности и качестве кода.
 
-## Features
+## Возможности
 
-- 🤖 **LLM-Powered Analysis** - Uses advanced language models to understand code context and provide meaningful feedback
-- 📝 **Two Review Modes**
-  - **Line Mode**: Posts inline comments on specific lines in the diff
-  - **Summary Mode**: Provides a single comprehensive review summary
-- 🔧 **GitLab CI Integration** - Runs automatically in merge request pipelines
-- 🐳 **Containerized** - Docker-ready for easy deployment
-- ⚙️ **Configurable** - Customize review behavior via environment variables
-- 🛡️ **Smart Deduplication** - Avoids posting duplicate comments
-- 🔄 **Retry Logic** - Handles API failures gracefully
+- 🤖 **Анализ на основе ИИ** — использует продвинутые языковые модели для понимания контекста кода и предоставления содержательной обратной связи
+- 📝 **Обзорное рецензирование** — предоставляет единое комплексное резюме рецензии
+- 🔧 **Интеграция с GitLab CI** — автоматически запускается в пайплайнах merge request
+- 🐳 **Контейнеризация** — готово к развёртыванию в Docker
+- ⚙️ **Настраиваемость** — настройка поведения рецензирования через переменные окружения
+- 🛡️ **Умная дедупликация** — избегает публикации дублирующихся комментариев
+- 🔄 **Повторные попытки** — корректно обрабатывает ошибки API
 
-## Architecture
+## Архитектура
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
@@ -37,37 +35,36 @@ A production-ready Python service that integrates with GitLab CI to analyze merg
          ▼                       ▼
 ┌─────────────────┐     ┌──────────────────┐
 │   MR Comments   │◀────│   Review Engine  │
-│   (Inline/Sum)  │     │   (Analysis)     │
+│   (Summary)     │     │   (Analysis)     │
 └─────────────────┘     └──────────────────┘
 ```
 
-## Quick Start
+## Быстрый старт
 
-### 1. Build the Docker Image
+### 1. Сборка Docker-образа
 
 ```bash
 docker build -t reviewbot:latest .
 ```
 
-### 2. Run Locally for Testing
+### 2. Локальный запуск для тестирования
 
 ```bash
 docker run \
-  -e API_KEY=your_llm_api_key \
+  -e LLM_API_KEY=your_llm_api_key \
   -e GITLAB_TOKEN=your_gitlab_token \
-  -e CI_PROJECT_ID=12345 \
-  -e CI_MERGE_REQUEST_IID=67 \
-  -e REVIEW_MODE=line \
-  -e DEFAULT_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct \
-  -e REVIEW_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct \
-  -e REVIEW_TEMPERATURE=0.3 \
-  -e REVIEW_MAX_TOKENS=2000 \
+  -e GITLAB_PROJECT_ID=12345 \
+  -e GITLAB_MERGE_REQUEST_ID=67 \
+  -e GITLAB_BASE_URL=https://gitlab.com \
+  -e LLM_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct \
+  -e LLM_TEMPERATURE=0.3 \
+  -e LLM_MAX_TOKENS=2000 \
   reviewbot:latest
 ```
 
-### 3. Integrate with GitLab CI
+### 3. Интеграция с GitLab CI
 
-Copy `.gitlab-ci.yml.example` to `.gitlab-ci.yml` in your project:
+Скопируйте `.gitlab-ci.yml.example` в `.gitlab-ci.yml` в вашем проекте:
 
 ```yaml
 ai_code_review:
@@ -80,46 +77,27 @@ ai_code_review:
   allow_failure: true
 ```
 
-## Configuration
+## Конфигурация
 
-### Environment Variables
+### Переменные окружения
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `API_KEY` | Yes | LLM API key |
-| `GITLAB_TOKEN` | Yes | GitLab personal access token (api scope) |
-| `CI_PROJECT_ID` | Yes | GitLab project ID |
-| `CI_MERGE_REQUEST_IID` | Yes | Merge request IID |
-| `CI_API_V4_URL` | No | GitLab API URL (default: `https://gitlab.com/api/v4`) |
-| `REVIEW_MODE` | No | Review mode: `line` or `summary` (default: `line`) |
-| `REVIEW_LANGUAGE` | No | Language for review comments (default: `en`). Examples: `en`, `ru`, `zh`, `es` |
-| `DEFAULT_MODEL` | No | Default LLM model name (default: `Qwen/Qwen3-Coder-480B-A35B-Instruct`) |
-| `DEFAULT_BASE_URL` | No | Default LLM API base URL (default: `https://foundation-models.api.cloud.ru/v1`) |
-| `REVIEW_MODEL` | No | Override for the LLM model name |
-| `REVIEW_TEMPERATURE` | No | LLM temperature setting (default: `0.3`) |
-| `REVIEW_MAX_TOKENS` | No | Maximum tokens in LLM response (default: `2000`) |
-| `REVIEW_MAX_COMMENTS` | No | Maximum comments to post per review (default: `10`) |
-| `REVIEW_LANGUAGE` | No | Language for review comments (default: `en`) |
+| Переменная | Обязательна | Описание |
+|------------|-------------|----------|
+| `LLM_API_KEY` | Да | Ключ API для LLM |
+| `GITLAB_TOKEN` | Да | Персональный токен GitLab (scope: api) |
+| `GITLAB_PROJECT_ID` | Да | ID проекта GitLab |
+| `GITLAB_MERGE_REQUEST_ID` | Да | ID merge request |
+| `GITLAB_BASE_URL` | Да | Базовый URL GitLab (например, `https://gitlab.com`) |
+| `REVIEW_LANGUAGE` | Нет | Язык комментариев рецензии (по умолчанию: `ru`). Доступные значения: `en`, `ru` |
+| `LLM_MODEL` | Нет | Имя модели LLM (по умолчанию: `Qwen/Qwen3-Coder-480B-A35B-Instruct`) |
+| `LLM_BASE_URL` | Нет | Базовый URL API LLM (по умолчанию: `https://foundation-models.api.cloud.ru/v1`) |
+| `LLM_TEMPERATURE` | Нет | Параметр temperature для LLM (по умолчанию: `0.3`) |
+| `LLM_MAX_TOKENS` | Нет | Максимальное количество токенов в ответе LLM (по умолчанию: `2000`) |
+| `LLM_MAX_COMMENTS` | Нет | Максимальное количество комментариев на рецензию (по умолчанию: `10`) |
 
+## Формат рецензии
 
-
-## Review Modes
-
-### Line Mode (Default)
-
-Posts inline comments on specific lines:
-
-```
-⚠️ Issue:
-Possible None dereference when accessing user.id
-
-💡 Suggestion:
-Add null check before accessing the property
-```
-
-### Summary Mode
-
-Posts a single comprehensive review:
+Бот публикует единое комплексное резюме рецензии:
 
 ```markdown
 ## AI Code Review Summary
@@ -137,7 +115,7 @@ Posts a single comprehensive review:
 - Clean separation of concerns
 ```
 
-## Supported Languages
+## Поддерживаемые языки
 
 - Python
 - Go
@@ -146,92 +124,87 @@ Posts a single comprehensive review:
 - C / C++
 - Rust
 
-## Getting GitLab Token
+## Получение токена GitLab
 
-1. Go to **User Settings** → **Access Tokens**
-2. Create a new token with `api` scope
-3. Copy the token and set as `GITLAB_TOKEN` environment variable
+1. Перейдите в **User Settings** → **Access Tokens**
+2. Создайте новый токен с scope `api`
+3. Скопируйте токен и установите в переменную окружения `GITLAB_TOKEN`
 
-## Local Development
+## Локальная разработка
 
-### Prerequisites
+### Требования
 
 - Python 3.11+
-- Docker (optional)
+- Docker (опционально)
 
-### Setup
+### Настройка
 
 ```bash
-# Create virtual environment
+# Создание виртуального окружения
 python -m venv venv
 source venv/bin/activate
 
-# Install dependencies
+# Установка зависимостей
 pip install -r requirements.txt
 
-# Set environment variables
-export API_KEY=your_key
+# Установка переменных окружения
+export LLM_API_KEY=your_key
 export GITLAB_TOKEN=your_token
-export CI_PROJECT_ID=12345
-export CI_MERGE_REQUEST_IID=67
-export DEFAULT_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
-export REVIEW_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
-export REVIEW_TEMPERATURE=0.3
-export REVIEW_MAX_TOKENS=2000
-export REVIEW_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
-export REVIEW_TEMPERATURE=0.3
-export REVIEW_MAX_TOKENS=2000
+export GITLAB_PROJECT_ID=12345
+export GITLAB_MERGE_REQUEST_ID=67
+export GITLAB_BASE_URL=https://gitlab.com
+export LLM_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
+export LLM_TEMPERATURE=0.3
+export LLM_MAX_TOKENS=2000
 
-# Run the reviewer
+# Запуск рецензента
 python -m reviewbot.main
 ```
 
-### Testing with Docker Compose
+### Тестирование с Docker Compose
 
 ```bash
-# Create .env file
+# Создание файла .env
 cat > .env << EOF
-API_KEY=your_key
+LLM_API_KEY=your_key
 GITLAB_TOKEN=your_token
-CI_PROJECT_ID=12345
-CI_MERGE_REQUEST_IID=67
-REVIEW_MODE=line
-DEFAULT_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
-REVIEW_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
-REVIEW_TEMPERATURE=0.3
-REVIEW_MAX_TOKENS=2000
+GITLAB_PROJECT_ID=12345
+GITLAB_MERGE_REQUEST_ID=67
+GITLAB_BASE_URL=https://gitlab.com
+LLM_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
+LLM_TEMPERATURE=0.3
+LLM_MAX_TOKENS=2000
 EOF
 
-# Run with docker-compose
+# Запуск через docker-compose
 docker-compose up reviewbot
 ```
 
-## Project Structure
+## Структура проекта
 
 ```
 gitlab_mr_ai_reviwer/
 ├── reviewbot/
-│   ├── __init__.py          # Package initialization
-│   ├── main.py              # Entry point
-│   ├── config_loader.py     # Configuration management
-│   ├── diff_parser.py       # Diff parsing logic
-│   ├── gitlab_client.py     # GitLab API client
-│   ├── llm_client.py        # LLM API client
-│   └── review_engine.py     # Main review orchestration
+│   ├── __init__.py          # Инициализация пакета
+│   ├── main.py              # Точка входа
+│   ├── config_loader.py     # Управление конфигурацией
+│   ├── diff_parser.py       # Логика парсинга diff
+│   ├── gitlab_client.py     # GitLab API клиент
+│   ├── llm_client.py        # LLM API клиент
+│   └── review_engine.py     # Основная оркестрация рецензии
 ├── prompts/
-│   ├── line_review_prompt.md    # Line review prompt
-│   └── summary_review_prompt.md # Summary review prompt
-├── .gitlab-ci.yml.example   # Example CI config
-├── Dockerfile               # Container definition
-├── docker-compose.yml       # Local testing
-├── requirements.txt         # Python dependencies
-├── README.md                # This file
+│   └── summary_review_prompt.md # Промпт для обзорной рецензии
+├── .gitlab-ci.yml.example   # Пример CI конфигурации
+├── Dockerfile               # Описание контейнера
+├── docker-compose.yml       # Локальное тестирование
+├── requirements.txt         # Python зависимости
+├── README.md                # Этот файл
 └── LICENSE                  # MIT License
 ```
 
-## Logging
+## Логирование
 
-The bot uses structured logging:
+Бот использует структурированное логирование:
 
 ```
 [INFO] Fetching MR changes
@@ -241,61 +214,62 @@ The bot uses structured logging:
 [INFO] Review completed successfully
 ```
 
-## Error Handling
+## Обработка ошибок
 
-- **API Retries**: Automatic retry with exponential backoff for GitLab and LLM APIs
-- **Rate Limiting**: Respects GitLab rate limits with proper wait times
-- **JSON Validation**: Validates LLM responses and handles parsing errors
-- **Duplicate Detection**: Prevents posting duplicate comments
+- **Повторные попытки API**: автоматические повторные попытки с экспоненциальной задержкой для GitLab и LLM API
+- **Ограничение частоты**: соблюдение ограничений частоты GitLab с соответствующим временем ожидания
+- **Валидация JSON**: проверка ответов LLM и обработка ошибок парсинга
+- **Обнаружение дубликатов**: предотвращение публикации дублирующихся комментариев
 
-## Security Considerations
+## Вопросы безопасности
 
-- API keys are passed via environment variables only
-- No sensitive data is logged
-- GitLab tokens should have minimal required scope (`api`)
-- Consider using CI/CD variables for secrets in GitLab
+- Ключи API передаются только через переменные окружения
+- Конфиденциальные данные не логируются
+- Токены GitLab должны иметь минимально необходимый scope (`api`)
+- Рассмотрите использование CI/CD variables для секретов в GitLab
 
-## Troubleshooting
+## Решение проблем
 
 ### "Missing required environment variables"
 
-Ensure all required environment variables are set:
+Убедитесь, что все обязательные переменные окружения установлены:
 ```bash
-export API_KEY=xxx
+export LLM_API_KEY=xxx
 export GITLAB_TOKEN=xxx
-export CI_PROJECT_ID=xxx
-export CI_MERGE_REQUEST_IID=xxx
+export GITLAB_PROJECT_ID=xxx
+export GITLAB_MERGE_REQUEST_ID=xxx
+export GITLAB_BASE_URL=xxx
 ```
 
-### "API_KEY is required"
+### "LLM_API_KEY is required"
 
-The LLM API key must be set. Check the [LLM client integration](reviewbot/llm_client.py) for the expected format.
+Ключ LLM API должен быть установлен. Проверьте [интеграцию LLM клиента](reviewbot/llm_client.py) для ожидаемого формата.
 
-### No comments posted
+### Комментарии не публикуются
 
-Check:
-1. Files match configured languages
-2. Paths are not in ignore list
-3. Max comments limit not reached
-4. Comments are not duplicates
+Проверьте:
+1. Файлы соответствуют настроенным языкам
+2. Пути не находятся в списке игнорируемых
+3. Достигнут лимит максимального количества комментариев
+4. Комментарии не являются дубликатами
 
-### Rate limiting
+### Ограничение частоты (Rate limiting)
 
-The bot implements automatic retry with backoff. If you hit rate limits frequently, consider:
-- Increasing retry delay in configuration
-- Reducing review frequency
-- Using a dedicated GitLab token
+Бот реализует автоматические повторные попытки с задержкой. Если вы часто сталкиваетесь с ограничениями, рассмотрите:
+- Увеличение задержки между повторными попытками в конфигурации
+- Уменьшение частоты рецензий
+- Использование выделенного токена GitLab
 
-## License
+## Лицензия
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License — подробности в файле [LICENSE](LICENSE).
 
-## Contributing
+## Вклад в проект
 
-Contributions are welcome! Please feel free to submit a Merge Request.
+Вклад приветствуется! Не стесняйтесь отправлять Merge Request.
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests (if applicable)
-5. Submit a Merge Request
+1. Форкните репозиторий
+2. Создайте ветку для новой функциональности
+3. Внесите изменения
+4. Запустите тесты (если применимо)
+5. Отправьте Merge Request

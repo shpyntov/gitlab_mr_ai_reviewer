@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 class LLMClient:
     """Client for LLM-based code review."""
 
-    DEFAULT_MODEL = os.environ.get("DEFAULT_MODEL", "Qwen/Qwen3-Coder-480B-A35B-Instruct")
-    DEFAULT_BASE_URL = os.environ.get("DEFAULT_BASE_URL", "https://foundation-models.api.cloud.ru/v1")
+    DEFAULT_MODEL = os.environ.get("LLM_MODEL", "Qwen/Qwen3-Coder-480B-A35B-Instruct")
+    DEFAULT_BASE_URL = os.environ.get("LLM_BASE_URL", "https://foundation-models.api.cloud.ru/v1")
 
     def __init__(
         self,
@@ -38,9 +38,9 @@ class LLMClient:
             temperature: Sampling temperature
             max_tokens: Maximum tokens in response
         """
-        self.api_key = api_key or os.environ.get("API_KEY")
+        self.api_key = api_key or os.environ.get("LLM_API_KEY")
         if not self.api_key:
-            raise ValueError("API_KEY is required. Set via constructor or API_KEY env var.")
+            raise ValueError("LLM_API_KEY is required. Set via constructor or LLM_API_KEY env var.")
 
         self.base_url = base_url or self.DEFAULT_BASE_URL
         self.model = model or self.DEFAULT_MODEL

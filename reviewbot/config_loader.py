@@ -16,7 +16,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "max_comments": 10,
         "languages": ["python", "go", "javascript", "typescript", "java", "cpp", "c", "rust"],
         "ignore_paths": ["migrations/", "docs/", "vendor/", "node_modules/", ".git/"],
-        "language": "en",
+        "language": "ru",
     },
     "ai": {
         "temperature": 0.3,
@@ -76,10 +76,10 @@ class ConfigLoader:
     def _apply_env_overrides(self, config: dict[str, Any]) -> dict[str, Any]:
         """Apply environment variable overrides to configuration."""
         env_mapping = {
-            "REVIEW_MAX_COMMENTS": ("review", "max_comments", int),
-            "REVIEW_TEMPERATURE": ("ai", "temperature", float),
-            "REVIEW_MAX_TOKENS": ("ai", "max_tokens", int),
-            "REVIEW_MODEL": ("ai", "model", str),
+            "LLM_MAX_COMMENTS": ("review", "max_comments", int),
+            "LLM_TEMPERATURE": ("ai", "temperature", float),
+            "LLM_MAX_TOKENS": ("ai", "max_tokens", int),
+            "LLM_MODEL": ("ai", "model", str),
             "REVIEW_LANGUAGE": ("review", "language", str),
         }
 
