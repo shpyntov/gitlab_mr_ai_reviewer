@@ -215,7 +215,7 @@ If no significant issues found, state: "{headers["no_issues"]}"
         # Post comment
         comment_body = self._format_summary_comment(summary)
 
-        if not self.gitlab_client.is_duplicate_comment(comment_body):
+        if not self.gitlab_client.is_duplicate_summary_comment(comment_body):
             self.gitlab_client.post_summary_comment(comment_body)
             logger.info("[INFO] Summary comment posted")
         else:
