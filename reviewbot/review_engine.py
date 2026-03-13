@@ -179,7 +179,7 @@ class ReviewEngine:
 Language: All feedback must be written in: {{language}}
 
 Return a JSON array of review items. Each item must have:
-- "file": the file path
+- "file": the file path (use the actual file path, e.g., "app.py")
 - "line": the line number (new version)
 - "issue": brief description of the issue
 - "suggestion": how to fix it (optional)

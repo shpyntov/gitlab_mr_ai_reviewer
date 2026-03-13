@@ -199,10 +199,17 @@ class LLMClient:
             result = []
             for item in data:
                 if not isinstance(item, dict):
+                    logger.warning(f"Skipping non-dict item: {type(item)}")
                     continue
 
+                # Validate 'file' field
+                file_value = item.get("file", file_path)
+                if not isinstance(file_value, str):
+                    logger.warning(f"Invalid 'file' field type: {type(file_value)}, expected string")
+                    file_value = file_path
+
                 review_item = {
-                    "file": item.get("file", file_path),
+                    "file": file_value,
                     "line": item.get("line", 0),
                     "issue": item.get("issue", "Code issue"),
                     "suggestion": item.get("suggestion", ""),
@@ -216,8 +223,17 @@ class LLMClient:
 
         except json.JSONDecodeError as e:
             logger.warning(f"Failed to parse JSON response: {e}")
+            logger.debug(f"Raw response content: {content[:500]}...")
             # Fallback: try to extract JSON from markdown code blocks
             return self._extract_json_from_markdown(content, file_path)
+        except KeyError as e:
+            logger.error(f"Missing required field in review item: {e}")
+            logger.debug(f"Raw response content: {content[:500]}...")
+            return []
+        except Exception as e:
+            logger.error(f"Unexpected error parsing review response: {e}")
+            logger.debug(f"Raw response content: {content[:500]}...")
+            return []
 
     def _extract_json_from_markdown(
         self, content: str, file_path: str

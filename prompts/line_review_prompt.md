@@ -17,7 +17,7 @@ All feedback must be written in: {language}
 ## Output Format
 
 Return ONLY a valid JSON array. Each element must have:
-- `file`: string - the file path (use "{file_path}")
+- `file`: string - the file path (use the actual file path being reviewed)
 - `line`: integer - the line number in the NEW version of the file
 - `issue`: string - brief description of the issue (max 1 sentence)
 - `suggestion`: string - how to fix it (optional, max 1 sentence)
@@ -25,8 +25,8 @@ Return ONLY a valid JSON array. Each element must have:
 Example:
 ```json
 [
-  {{"file": "app/service.py", "line": 42, "issue": "Possible None dereference", "suggestion": "Add null check before accessing user.id"}},
-  {{"file": "app/service.py", "line": 55, "issue": "SQL injection vulnerability", "suggestion": "Use parameterized query instead of string formatting"}}
+  {"file": "app/service.py", "line": 42, "issue": "Possible None dereference", "suggestion": "Add null check before accessing user.id"},
+  {"file": "app/service.py", "line": 55, "issue": "SQL injection vulnerability", "suggestion": "Use parameterized query instead of string formatting"}
 ]
 ```
 
