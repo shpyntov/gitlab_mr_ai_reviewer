@@ -15,8 +15,8 @@ A production-ready Python service that integrates with GitLab CI to analyze merg
   - **Line Mode**: Posts inline comments on specific lines in the diff
   - **Summary Mode**: Provides a single comprehensive review summary
 - 🔧 **GitLab CI Integration** - Runs automatically in merge request pipelines
-- ⚙️ **Configurable** - Customize review behavior via `.reviewbot.yml`
 - 🐳 **Containerized** - Docker-ready for easy deployment
+- ⚙️ **Configurable** - Customize review behavior via environment variables
 - 🛡️ **Smart Deduplication** - Avoids posting duplicate comments
 - 🔄 **Retry Logic** - Handles API failures gracefully
 
@@ -58,6 +58,10 @@ docker run \
   -e CI_PROJECT_ID=12345 \
   -e CI_MERGE_REQUEST_IID=67 \
   -e REVIEW_MODE=line \
+  -e DEFAULT_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct \
+  -e REVIEW_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct \
+  -e REVIEW_TEMPERATURE=0.3 \
+  -e REVIEW_MAX_TOKENS=2000 \
   reviewbot:latest
 ```
 
@@ -89,42 +93,15 @@ ai_code_review:
 | `CI_API_V4_URL` | No | GitLab API URL (default: `https://gitlab.com/api/v4`) |
 | `REVIEW_MODE` | No | Review mode: `line` or `summary` (default: `line`) |
 | `REVIEW_LANGUAGE` | No | Language for review comments (default: `en`). Examples: `en`, `ru`, `zh`, `es` |
+| `DEFAULT_MODEL` | No | Default LLM model name (default: `Qwen/Qwen3-Coder-480B-A35B-Instruct`) |
+| `DEFAULT_BASE_URL` | No | Default LLM API base URL (default: `https://foundation-models.api.cloud.ru/v1`) |
+| `REVIEW_MODEL` | No | Override for the LLM model name |
+| `REVIEW_TEMPERATURE` | No | LLM temperature setting (default: `0.3`) |
+| `REVIEW_MAX_TOKENS` | No | Maximum tokens in LLM response (default: `2000`) |
+| `REVIEW_MAX_COMMENTS` | No | Maximum comments to post per review (default: `10`) |
+| `REVIEW_LANGUAGE` | No | Language for review comments (default: `en`) |
 
-### Repository Configuration (.reviewbot.yml)
 
-Create a `.reviewbot.yml` file in your repository root to customize behavior:
-
-```yaml
-review:
-  # Maximum comments per MR
-  max_comments: 10
-
-  # Language for review comments (e.g., 'en', 'ru', 'zh', 'es')
-  language: en
-
-  # Languages to review
-  languages:
-    - python
-    - go
-    - javascript
-    - typescript
-
-  # Paths to ignore
-  ignore_paths:
-    - migrations/
-    - docs/
-    - vendor/
-
-ai:
-  # Model temperature (0.0-1.0)
-  temperature: 0.3
-
-  # Max response tokens
-  max_tokens: 2000
-
-  # Model name
-  model: zai-org/GLM-4.6
-```
 
 ## Review Modes
 
@@ -197,6 +174,13 @@ export API_KEY=your_key
 export GITLAB_TOKEN=your_token
 export CI_PROJECT_ID=12345
 export CI_MERGE_REQUEST_IID=67
+export DEFAULT_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
+export REVIEW_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
+export REVIEW_TEMPERATURE=0.3
+export REVIEW_MAX_TOKENS=2000
+export REVIEW_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
+export REVIEW_TEMPERATURE=0.3
+export REVIEW_MAX_TOKENS=2000
 
 # Run the reviewer
 python -m reviewbot.main
@@ -212,6 +196,10 @@ GITLAB_TOKEN=your_token
 CI_PROJECT_ID=12345
 CI_MERGE_REQUEST_IID=67
 REVIEW_MODE=line
+DEFAULT_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
+REVIEW_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
+REVIEW_TEMPERATURE=0.3
+REVIEW_MAX_TOKENS=2000
 EOF
 
 # Run with docker-compose
@@ -230,12 +218,9 @@ gitlab_mr_ai_reviwer/
 │   ├── gitlab_client.py     # GitLab API client
 │   ├── llm_client.py        # LLM API client
 │   └── review_engine.py     # Main review orchestration
-├── config/
-│   └── default_config.yml   # Default configuration
 ├── prompts/
 │   ├── line_review_prompt.md    # Line review prompt
 │   └── summary_review_prompt.md # Summary review prompt
-├── .reviewbot.yml.example   # Example repo config
 ├── .gitlab-ci.yml.example   # Example CI config
 ├── Dockerfile               # Container definition
 ├── docker-compose.yml       # Local testing

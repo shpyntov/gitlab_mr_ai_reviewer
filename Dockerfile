@@ -20,7 +20,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY reviewbot/ ./reviewbot/
 COPY prompts/ ./prompts/
-COPY config/ ./config/
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1

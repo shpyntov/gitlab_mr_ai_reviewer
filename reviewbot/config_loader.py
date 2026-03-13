@@ -1,8 +1,7 @@
 """
 Configuration loader for reviewbot.
 
-Loads configuration from .reviewbot.yml in the repository root,
-with fallback to default configuration.
+Provides configuration management through environment variables.
 """
 
 import os
@@ -22,7 +21,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "ai": {
         "temperature": 0.3,
         "max_tokens": 2000,
-        "model": "zai-org/GLM-4.6",
+        "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
     },
 }
 
@@ -35,24 +34,13 @@ class ConfigLoader:
         Initialize the configuration loader.
 
         Args:
-            config_path: Optional path to .reviewbot.yml. If not provided,
-                        searches in current directory.
+            config_path: Not used in environment-only configuration mode.
         """
-        self.config_path = config_path or self._find_config_path()
+        self.config_path = None
         self._config: dict[str, Any] | None = None
 
     def _find_config_path(self) -> str | None:
-        """Search for .reviewbot.yml in common locations."""
-        candidates = [
-            Path.cwd() / ".reviewbot.yml",
-            Path.cwd() / ".." / ".reviewbot.yml",
-            Path(os.environ.get("CI_PROJECT_DIR", ".")) / ".reviewbot.yml",
-        ]
-
-        for candidate in candidates:
-            if candidate.exists():
-                return str(candidate)
-
+        """Not used in environment-only configuration mode."""
         return None
 
     @property
@@ -63,17 +51,8 @@ class ConfigLoader:
         return self._config
 
     def _load_config(self) -> dict[str, Any]:
-        """Load configuration from file or return defaults."""
+        """Load configuration from environment variables."""
         config = DEFAULT_CONFIG.copy()
-
-        if self.config_path and Path(self.config_path).exists():
-            try:
-                with open(self.config_path, "r", encoding="utf-8") as f:
-                    file_config = yaml.safe_load(f)
-                    if file_config:
-                        config = self._merge_configs(config, file_config)
-            except (yaml.YAMLError, OSError) as e:
-                print(f"[WARNING] Failed to load config from {self.config_path}: {e}")
 
         # Override with environment variables
         config = self._apply_env_overrides(config)

@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 class LLMClient:
     """Client for LLM-based code review."""
 
-    DEFAULT_MODEL = "zai-org/GLM-4.6"
-    DEFAULT_BASE_URL = "https://foundation-models.api.cloud.ru/v1"
+    DEFAULT_MODEL = os.environ.get("DEFAULT_MODEL", "Qwen/Qwen3-Coder-480B-A35B-Instruct")
+    DEFAULT_BASE_URL = os.environ.get("DEFAULT_BASE_URL", "https://foundation-models.api.cloud.ru/v1")
 
     def __init__(
         self,

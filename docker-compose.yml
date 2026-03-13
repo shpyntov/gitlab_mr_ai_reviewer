@@ -26,6 +26,15 @@ services:
       
       # Optional: Review mode (line or summary)
       - REVIEW_MODE=${REVIEW_MODE:-line}
-    volumes:
-      # Mount local config for testing
-      - ./.reviewbot.yml:/app/.reviewbot.yml:ro
+      # Optional: Default model
+      - DEFAULT_MODEL=${DEFAULT_MODEL:-Qwen/Qwen3-Coder-480B-A35B-Instruct}
+      # Optional: Override model
+      - REVIEW_MODEL=${REVIEW_MODEL:-}
+      # Optional: Temperature setting
+      - REVIEW_TEMPERATURE=${REVIEW_TEMPERATURE:-0.3}
+      # Optional: Max tokens
+      - REVIEW_MAX_TOKENS=${REVIEW_MAX_TOKENS:-2000}
+      # Optional: Max comments
+      - REVIEW_MAX_COMMENTS=${REVIEW_MAX_COMMENTS:-10}
+      # Optional: Review language
+      - REVIEW_LANGUAGE=${REVIEW_LANGUAGE:-en}
