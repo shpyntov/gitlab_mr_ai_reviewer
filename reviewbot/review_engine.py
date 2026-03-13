@@ -268,6 +268,9 @@ If no significant issues found, state: "{headers["no_issues"]}"
 
         except Exception as e:
             logger.error(f"Review failed: {e}")
+            # Log the full traceback for better debugging
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
             return False
 
     def _filter_files(self, mr_diff: MRDiff) -> list[FileDiff]:
@@ -327,10 +330,16 @@ If no significant issues found, state: "{headers["no_issues"]}"
         # Get commit ID for inline comments
         commit_id = self.gitlab_client.get_commit_id()
 
+        # Get prompt template
         prompt = self._prompt_templates.get("line", self._get_default_prompt("line"))
-
-        # Inject language into prompt (use double braces to escape other placeholders)
+        
+        # Inject language into prompt
+        # We need to be careful with the replacement to avoid conflicts with other placeholders
+        # First replace {language} placeholder
         prompt = prompt.replace("{language}", self.language)
+        
+        # Escape other placeholders that should not be processed yet
+        prompt = prompt.replace("{file_path}", "{{file_path}}").replace("{diff_content}", "{{diff_content}}")
 
         for file_diff in files_to_review:
             if comments_posted >= max_comments:

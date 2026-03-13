@@ -83,10 +83,7 @@ class LLMClient:
             },
             {
                 "role": "user",
-                "content": prompt_template.format(
-                    file_path=file_path,
-                    diff_content=diff_content,
-                ),
+                "content": prompt_template.replace('{{file_path}}', file_path).replace('{{diff_content}}', diff_content),
             },
         ]
 
@@ -203,21 +200,30 @@ class LLMClient:
                     continue
 
                 # Validate 'file' field - use .get() to avoid KeyError
-                file_value = item.get("file", file_path)
-                if not isinstance(file_value, str):
-                    logger.warning(f"Invalid 'file' field type: {type(file_value)}, expected string")
+                file_value = item.get("file")
+                if file_value is None:
+                    logger.warning(f"Missing 'file' field in review item, using fallback: {file_path}")
+                    file_value = file_path
+                elif not isinstance(file_value, str):
+                    logger.warning(f"Invalid 'file' field type: {type(file_value)}, expected string, using fallback: {file_path}")
                     file_value = file_path
 
                 # Validate 'line' field - use .get() to avoid KeyError
-                line_value = item.get("line", 0)
-                if not isinstance(line_value, (int, float)):
-                    logger.warning(f"Invalid 'line' field type: {type(line_value)}, expected int")
-                    line_value = 0
+                line_value = item.get("line")
+                if line_value is None:
+                    logger.warning("Missing 'line' field in review item, skipping")
+                    continue
+                elif not isinstance(line_value, (int, float)):
+                    logger.warning(f"Invalid 'line' field type: {type(line_value)}, expected int, skipping")
+                    continue
 
                 # Validate 'issue' field - use .get() to avoid KeyError
-                issue_value = item.get("issue", "Code issue")
-                if not isinstance(issue_value, str):
-                    logger.warning(f"Invalid 'issue' field type: {type(issue_value)}, expected string")
+                issue_value = item.get("issue")
+                if issue_value is None:
+                    logger.warning("Missing 'issue' field in review item, skipping")
+                    continue
+                elif not isinstance(issue_value, str):
+                    logger.warning(f"Invalid 'issue' field type: {type(issue_value)}, expected string, using default")
                     issue_value = "Code issue"
 
                 # Validate 'suggestion' field - use .get() to avoid KeyError
@@ -236,6 +242,8 @@ class LLMClient:
                 # Validate required fields
                 if review_item["line"] > 0 and review_item["issue"]:
                     result.append(review_item)
+                else:
+                    logger.warning(f"Review item missing required fields (line or issue), skipping: {review_item}")
 
             return result
 
@@ -247,6 +255,9 @@ class LLMClient:
         except Exception as e:
             logger.error(f"Unexpected error parsing review response: {e}")
             logger.debug(f"Raw response content: {content[:500]}...")
+            # Log the full traceback for better debugging
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
             return []
 
     def _extract_json_from_markdown(
