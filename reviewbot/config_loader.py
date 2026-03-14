@@ -25,19 +25,9 @@ DEFAULT_CONFIG: dict[str, Any] = {
 class ConfigLoader:
     """Loads and manages reviewbot configuration."""
 
-    def __init__(self, config_path: str | None = None) -> None:
-        """
-        Initialize the configuration loader.
-
-        Args:
-            config_path: Not used in environment-only configuration mode.
-        """
-        self.config_path = None
+    def __init__(self) -> None:
+        """Initialize the configuration loader."""
         self._config: dict[str, Any] | None = None
-
-    def _find_config_path(self) -> str | None:
-        """Not used in environment-only configuration mode."""
-        return None
 
     @property
     def config(self) -> dict[str, Any]:
