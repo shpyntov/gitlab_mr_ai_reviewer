@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Docker](https://img.shields.io/badge/docker-containerized-blue.svg)](https://www.docker.com/)
+[![CI/CD](https://github.com/shpyntov/gitlab_mr_ai_reviewer/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/shpyntov/gitlab_mr_ai_reviewer/actions/workflows/docker-publish.yml)
 
 **Автоматический анализ кода с помощью ИИ для Merge Request в GitLab.**
 
@@ -15,12 +16,19 @@
 - 🔧 **Интеграция с GitLab CI** — автоматически запускается в пайплайнах merge request
 - 🐳 **Контейнеризация** — готово к развёртыванию в Docker
 - ⚙️ **Настраиваемость** — настройка поведения рецензирования через переменные окружения
+- 🔄 **Обновление комментариев** — автоматически обновляет существующий summary-комментарий при повторном запуске
 - 🛡️ **Умная дедупликация** — избегает публикации дублирующихся комментариев
 - 🔄 **Повторные попытки** — корректно обрабатывает ошибки API
 
 ## Быстрый старт
 
-### 1. Сборка Docker-образа
+### 1. Использование готового Docker-образа
+
+```bash
+docker pull ghcr.io/shpyntov/gitlab_mr_ai_reviewer:latest
+```
+
+Или собрать локально:
 
 ```bash
 docker build -t reviewbot:latest .
@@ -37,7 +45,6 @@ docker run \
   -e GITLAB_BASE_URL=https://gitlab.com \
   -e LLM_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct \
   -e LLM_TEMPERATURE=0.3 \
-  -e LLM_MAX_TOKENS=2000 \
   reviewbot:latest
 ```
 
@@ -47,7 +54,7 @@ docker run \
 
 ```yaml
 ai_code_review:
-  image: reviewbot:latest
+  image: ghcr.io/shpyntov/gitlab_mr_ai_reviewer:latest
   stage: test
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"

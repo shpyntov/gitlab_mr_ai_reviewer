@@ -2,19 +2,13 @@
 # Copy this to .gitlab-ci.yml in your project
 
 stages:
-  - test
   - review
 
 # AI Code Review job
 # Runs on merge request pipelines
 ai_code_review:
   image:
-    name: reviewbot:latest
-    # Or build from Dockerfile:
-    # docker:
-    #   build:
-    #     context: .
-    #     dockerfile: Dockerfile
+    name: ghcr.io/shpyntov/gitlab_mr_ai_reviewer:latest
   stage: review
   rules:
     # Only run on merge request pipelines
@@ -24,16 +18,9 @@ ai_code_review:
     - python -m reviewbot.main
   allow_failure: true  # Don't block MR on review failures
   timeout: 10m
+  variables:
+    # Optional: Override default LLM settings
+    # LLM_MODEL: "Qwen/Qwen3-Coder-480B-A35B-Instruct"
+    # LLM_TEMPERATURE: "0.3"
+    # REVIEW_LANGUAGE: "ru"
 
-# Optional: Build the reviewbot image
-.build_reviewbot:
-  image: docker:24
-  services:
-    - docker:24-dind
-  stage: test
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-  script:
-    - docker build -t reviewbot:latest .
-  only:
-    - main
