@@ -153,6 +153,7 @@ class ReviewEngine:
             logger.error(f"Review failed: {e}")
             # Log the full traceback for better debugging
             import traceback
+
             logger.error(f"Full traceback: {traceback.format_exc()}")
             return False
 
@@ -168,9 +169,7 @@ class ReviewEngine:
 
         return filtered
 
-    def _run_summary_review(
-        self, mr_diff: MRDiff, files_to_review: list[FileDiff]
-    ) -> bool:
+    def _run_summary_review(self, mr_diff: MRDiff, files_to_review: list[FileDiff]) -> bool:
         """Execute summary review mode."""
         logger.info("[INFO] Running summary review")
 

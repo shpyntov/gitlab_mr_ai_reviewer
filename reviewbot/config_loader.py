@@ -55,9 +55,7 @@ class ConfigLoader:
 
         return config
 
-    def _merge_configs(
-        self, default: dict[str, Any], override: dict[str, Any]
-    ) -> dict[str, Any]:
+    def _merge_configs(self, default: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
         """Deep merge two configuration dictionaries."""
         result = default.copy()
 
@@ -78,9 +76,7 @@ class ConfigLoader:
             "REVIEW_LANGUAGE": ("review", "language", str),
         }
 
-        for env_var, path_parts, converter in [
-            (k, v[:-1], v[-1]) for k, v in env_mapping.items()
-        ]:
+        for env_var, path_parts, converter in [(k, v[:-1], v[-1]) for k, v in env_mapping.items()]:
             if env_var in os.environ:
                 value = os.environ[env_var]
                 try:

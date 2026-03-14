@@ -83,7 +83,9 @@ class LLMClient:
             },
             {
                 "role": "user",
-                "content": prompt_template.replace('{{file_path}}', file_path).replace('{{diff_content}}', diff_content),
+                "content": prompt_template.replace("{{file_path}}", file_path).replace(
+                    "{{diff_content}}", diff_content
+                ),
             },
         ]
 
@@ -162,9 +164,7 @@ class LLMClient:
             logger.error(f"LLM API error: {e}")
             return "Error generating review summary."
 
-    def _parse_line_review_response(
-        self, content: str, file_path: str
-    ) -> list[dict[str, Any]]:
+    def _parse_line_review_response(self, content: str, file_path: str) -> list[dict[str, Any]]:
         """
         Parse LLM response into structured review items.
 
@@ -205,7 +205,9 @@ class LLMClient:
                     logger.warning(f"Missing 'file' field in review item, using fallback: {file_path}")
                     file_value = file_path
                 elif not isinstance(file_value, str):
-                    logger.warning(f"Invalid 'file' field type: {type(file_value)}, expected string, using fallback: {file_path}")
+                    logger.warning(
+                        f"Invalid 'file' field type: {type(file_value)}, expected string, using fallback: {file_path}"
+                    )
                     file_value = file_path
 
                 # Validate 'line' field - use .get() to avoid KeyError
@@ -257,12 +259,11 @@ class LLMClient:
             logger.debug(f"Raw response content: {content[:500]}...")
             # Log the full traceback for better debugging
             import traceback
+
             logger.error(f"Full traceback: {traceback.format_exc()}")
             return []
 
-    def _extract_json_from_markdown(
-        self, content: str, file_path: str
-    ) -> list[dict[str, Any]]:
+    def _extract_json_from_markdown(self, content: str, file_path: str) -> list[dict[str, Any]]:
         """
         Extract JSON from markdown code blocks.
 

@@ -36,10 +36,12 @@ class GitLabClient:
         """
         self.config = config
         self.session = requests.Session()
-        self.session.headers.update({
-            "PRIVATE-TOKEN": config.token,
-            "Content-Type": "application/json",
-        })
+        self.session.headers.update(
+            {
+                "PRIVATE-TOKEN": config.token,
+                "Content-Type": "application/json",
+            }
+        )
         self._existing_comments: list[dict[str, Any]] | None = None
 
     def _make_request(
@@ -109,10 +111,7 @@ class GitLabClient:
         Returns:
             List of change dictionaries with diff information
         """
-        endpoint = (
-            f"/projects/{self.config.project_id}"
-            f"/merge_requests/{self.config.merge_request_iid}/changes"
-        )
+        endpoint = f"/projects/{self.config.project_id}/merge_requests/{self.config.merge_request_iid}/changes"
 
         logger.info("[INFO] Fetching MR changes")
 
@@ -131,10 +130,7 @@ class GitLabClient:
         Returns:
             MR information dictionary
         """
-        endpoint = (
-            f"/projects/{self.config.project_id}"
-            f"/merge_requests/{self.config.merge_request_iid}"
-        )
+        endpoint = f"/projects/{self.config.project_id}/merge_requests/{self.config.merge_request_iid}"
 
         response = self._make_request("GET", endpoint)
         return response.json()
@@ -149,10 +145,7 @@ class GitLabClient:
         if self._existing_comments is not None:
             return self._existing_comments
 
-        endpoint = (
-            f"/projects/{self.config.project_id}"
-            f"/merge_requests/{self.config.merge_request_iid}/notes"
-        )
+        endpoint = f"/projects/{self.config.project_id}/merge_requests/{self.config.merge_request_iid}/notes"
 
         response = self._make_request("GET", endpoint)
         self._existing_comments = response.json()
@@ -173,10 +166,7 @@ class GitLabClient:
         Returns:
             Created comment data
         """
-        endpoint = (
-            f"/projects/{self.config.project_id}"
-            f"/merge_requests/{self.config.merge_request_iid}/notes"
-        )
+        endpoint = f"/projects/{self.config.project_id}/merge_requests/{self.config.merge_request_iid}/notes"
 
         data: dict[str, Any] = {"body": body}
 
@@ -403,8 +393,8 @@ class GitLabClient:
                 # Extract content after the phrase
                 idx1 = msg1_lower.find(phrase)
                 idx2 = msg2_lower.find(phrase)
-                content1 = msg1[idx1 + len(phrase):idx1 + len(phrase) + 50].strip()
-                content2 = msg2[idx2 + len(phrase):idx2 + len(phrase) + 50].strip()
+                content1 = msg1[idx1 + len(phrase) : idx1 + len(phrase) + 50].strip()
+                content2 = msg2[idx2 + len(phrase) : idx2 + len(phrase) + 50].strip()
 
                 if content1 and content2 and content1.lower() == content2.lower():
                     return True

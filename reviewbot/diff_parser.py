@@ -73,11 +73,9 @@ class DiffParser:
     """Parses GitLab MR diff response into structured data."""
 
     # Regex patterns for parsing unified diff
-    FILE_PATTERN = re.compile(
-        r'^diff --git a/(?P<old_path>.+?) b/(?P<new_path>.+?)$'
-    )
+    FILE_PATTERN = re.compile(r"^diff --git a/(?P<old_path>.+?) b/(?P<new_path>.+?)$")
     HUNK_PATTERN = re.compile(
-        r'^@@ -(?P<old_start>\d+)(?:,(?P<old_lines>\d+))? \+(?P<new_start>\d+)(?:,(?P<new_lines>\d+))? @@'
+        r"^@@ -(?P<old_start>\d+)(?:,(?P<old_lines>\d+))? \+(?P<new_start>\d+)(?:,(?P<new_lines>\d+))? @@"
     )
 
     def parse(self, diff_text: str) -> MRDiff:
@@ -211,9 +209,7 @@ class DiffParser:
 
         return added_lines
 
-    def build_context_diff(
-        self, mr_diff: MRDiff, max_context_lines: int = 3
-    ) -> str:
+    def build_context_diff(self, mr_diff: MRDiff, max_context_lines: int = 3) -> str:
         """
         Build a readable diff with context for LLM consumption.
 
