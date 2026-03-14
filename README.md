@@ -4,6 +4,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Docker](https://img.shields.io/badge/docker-containerized-blue.svg)](https://www.docker.com/)
 [![CI/CD](https://github.com/shpyntov/gitlab_mr_ai_reviewer/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/shpyntov/gitlab_mr_ai_reviewer/actions/workflows/docker-publish.yml)
+[![Powered by Cloud.ru](https://img.shields.io/badge/Powered%20by-Cloud.ru-4A90E2?style=flat)](https://cloud.ru)
 
 **Автоматический анализ кода с помощью ИИ для Merge Request в GitLab.**
 
