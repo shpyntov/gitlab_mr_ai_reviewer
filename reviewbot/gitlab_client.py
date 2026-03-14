@@ -179,7 +179,7 @@ class GitLabClient:
         """
         Check if a summary comment from the bot already exists.
 
-        We check for any existing summary comment from the bot by looking
+        We check for any existing summary comment by looking
         for the main header (e.g., "## AI Code Review Summary" or "## ИИ код-ревью").
 
         Args:
@@ -190,30 +190,18 @@ class GitLabClient:
         """
         existing = self.get_existing_comments()
 
-        # Check if we already posted a summary comment
+        # Check for summary header (any language variant)
+        summary_headers = [
+            "## AI Code Review Summary",
+            "## ИИ код-ревью",
+        ]
+
         for comment in existing:
-            if not self._is_bot_comment(comment):
-                continue
-
             existing_body = comment.get("body", "")
-
-            # Check for summary header (any language variant)
-            summary_headers = [
-                "## AI Code Review Summary",
-                "## ИИ код-ревью",
-            ]
 
             for header in summary_headers:
                 if header in existing_body:
+                    logger.info("[INFO] Found existing summary comment, skipping duplicate")
                     return True
 
         return False
-
-    def _is_bot_comment(self, comment: dict[str, Any]) -> bool:
-        """Check if comment is from the review bot."""
-        author = comment.get("author", {})
-        username = author.get("username", "")
-
-        # Check for bot username patterns
-        bot_patterns = ["reviewbot", "ai-reviewer", "gitlab-ai", "ai_bot"]
-        return any(pattern in username.lower() for pattern in bot_patterns)
