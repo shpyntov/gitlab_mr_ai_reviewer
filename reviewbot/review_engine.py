@@ -67,6 +67,9 @@ class ReviewEngine:
 
         Args:
             prompts_dir: Directory containing prompt templates
+
+        Raises:
+            FileNotFoundError: If prompt file is not found
         """
         if prompts_dir is None:
             # Default location relative to this module
@@ -76,65 +79,39 @@ class ReviewEngine:
 
         prompt_file = "summary_review_prompt.md"
         file_path = prompts_path / prompt_file
-        if file_path.exists():
+
+        logger.info(f"[INFO] Loading prompt from {file_path}")
+
+        try:
             with open(file_path, "r", encoding="utf-8") as f:
                 key = prompt_file.replace("_prompt.md", "")
                 self._prompt_templates[key] = f.read()
-        else:
-            logger.warning(f"Prompt file not found: {file_path}")
-            self._prompt_templates[key] = self._get_default_prompt(key)
+            logger.info(f"[INFO] Prompt loaded successfully with key: {key}")
+        except FileNotFoundError:
+            logger.error(f"[ERROR] Prompt file not found: {file_path}")
+            raise
+        except Exception as e:
+            logger.error(f"[ERROR] Failed to load prompt: {e}")
+            raise
 
         # Apply language-specific headers to summary prompt
-        if "summary" in self._prompt_templates:
+        if "summary_review" in self._prompt_templates:
             self._apply_language_headers()
 
     def _apply_language_headers(self) -> None:
-        """Apply language-specific headers to the summary prompt template."""
+        """Apply language-specific values to the summary prompt template."""
         headers = self.SECTION_HEADERS.get(self.language, self.SECTION_HEADERS["en"])
 
-        # Replace English headers with localized ones
-        replacements = {
-            "## AI Code Review Summary": f"## {headers['summary_title']}",
-            "### Potential Issues": f"### {headers['potential_issues']}",
-            "### Improvements": f"### {headers['improvements']}",
-            "### Positive Notes": f"### {headers['positive_notes']}",
-            "No significant issues found.": headers["no_issues"],
-        }
+        prompt = self._prompt_templates["summary_review"]
 
-        prompt = self._prompt_templates["summary"]
-        for old, new in replacements.items():
-            prompt = prompt.replace(old, new)
-        self._prompt_templates["summary"] = prompt
+        # Apply localized headers
+        for key, value in headers.items():
+            prompt = prompt.replace("{" + key + "}", value)
 
-    def _get_default_prompt(self, prompt_type: str) -> str:
-        """Get default prompt template."""
-        headers = self.SECTION_HEADERS.get(self.language, self.SECTION_HEADERS["en"])
+        # Apply language
+        prompt = prompt.replace("{language}", self.language)
 
-        return f"""Analyze the following code changes and provide a summary review:
-
-```diff
-{{all_changes}}
-```
-
-Language: All feedback must be written in: {{language}}
-
-Provide a structured review in markdown format:
-
-## {headers["summary_title"]}
-
-### {headers["potential_issues"]}
-- List significant issues
-
-### {headers["improvements"]}
-- Suggest improvements
-
-### {headers["positive_notes"]}
-- Highlight good practices
-
-Be concise. Focus on high-impact issues only. Limit to top 10 items total.
-
-If no significant issues found, state: "{headers["no_issues"]}"
-"""
+        self._prompt_templates["summary_review"] = prompt
 
     def run_review(self) -> bool:
         """
@@ -202,12 +179,7 @@ If no significant issues found, state: "{headers["no_issues"]}"
         all_changes = self.diff_parser.build_context_diff(mr_diff)
 
         # Get prompt template
-        prompt = self._prompt_templates.get(
-            "summary", self._get_default_prompt("summary")
-        )
-
-        # Inject language into prompt (use double braces to escape other placeholders)
-        prompt = prompt.replace("{language}", self.language)
+        prompt = self._prompt_templates["summary_review"]
 
         # Generate review
         summary = self.llm_client.review_summary(all_changes, prompt)
