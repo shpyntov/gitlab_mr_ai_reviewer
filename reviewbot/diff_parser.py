@@ -35,14 +35,6 @@ class FileDiff:
         """Get the current file path (new path if available)."""
         return self.new_path or self.old_path
 
-    @property
-    def all_added_lines(self) -> list[tuple[int, str]]:
-        """Get all added lines across all hunks."""
-        lines = []
-        for hunk in self.hunks:
-            lines.extend(hunk.added_lines)
-        return lines
-
 
 @dataclass
 class MRDiff:
@@ -50,99 +42,14 @@ class MRDiff:
 
     files: list[FileDiff] = field(default_factory=list)
 
-    def get_file(self, path: str) -> FileDiff | None:
-        """Get a file diff by path."""
-        for file_diff in self.files:
-            if file_diff.path == path or file_diff.old_path == path:
-                return file_diff
-        return None
-
-    def get_all_changed_files(self) -> list[str]:
-        """Get list of all changed file paths."""
-        return [f.path for f in self.files]
-
-    def get_added_lines_by_file(self) -> dict[str, list[tuple[int, str]]]:
-        """Get added lines grouped by file path."""
-        result: dict[str, list[tuple[int, str]]] = {}
-        for file_diff in self.files:
-            result[file_diff.path] = file_diff.all_added_lines
-        return result
-
 
 class DiffParser:
     """Parses GitLab MR diff response into structured data."""
 
     # Regex patterns for parsing unified diff
-    FILE_PATTERN = re.compile(r"^diff --git a/(?P<old_path>.+?) b/(?P<new_path>.+?)$")
     HUNK_PATTERN = re.compile(
         r"^@@ -(?P<old_start>\d+)(?:,(?P<old_lines>\d+))? \+(?P<new_start>\d+)(?:,(?P<new_lines>\d+))? @@"
     )
-
-    def parse(self, diff_text: str) -> MRDiff:
-        """
-        Parse unified diff text into structured MRDiff object.
-
-        Args:
-            diff_text: Raw unified diff text
-
-        Returns:
-            MRDiff object containing parsed changes
-        """
-        mr_diff = MRDiff()
-        current_file: FileDiff | None = None
-        current_hunk: DiffHunk | None = None
-
-        old_line_num = 0
-        new_line_num = 0
-
-        for line in diff_text.split("\n"):
-            # Check for new file
-            file_match = self.FILE_PATTERN.match(line)
-            if file_match:
-                current_file = FileDiff(
-                    old_path=file_match.group("old_path"),
-                    new_path=file_match.group("new_path"),
-                )
-                mr_diff.files.append(current_file)
-                current_hunk = None
-                continue
-
-            # Check for hunk header
-            hunk_match = self.HUNK_PATTERN.match(line)
-            if hunk_match and current_file:
-                old_start = int(hunk_match.group("old_start"))
-                old_lines = int(hunk_match.group("old_lines") or 1)
-                new_start = int(hunk_match.group("new_start"))
-                new_lines = int(hunk_match.group("new_lines") or 1)
-
-                current_hunk = DiffHunk(
-                    old_start=old_start,
-                    old_lines=old_lines,
-                    new_start=new_start,
-                    new_lines=new_lines,
-                    content=line + "\n",
-                )
-                current_file.hunks.append(current_hunk)
-
-                old_line_num = old_start
-                new_line_num = new_start
-                continue
-
-            if current_hunk:
-                current_hunk.content += line + "\n"
-
-                if line.startswith("+") and not line.startswith("+++"):
-                    current_hunk.added_lines.append((new_line_num, line[1:]))
-                    new_line_num += 1
-                elif line.startswith("-") and not line.startswith("---"):
-                    current_hunk.removed_lines.append((old_line_num, line[1:]))
-                    old_line_num += 1
-                elif not line.startswith("\\"):
-                    # Context line
-                    old_line_num += 1
-                    new_line_num += 1
-
-        return mr_diff
 
     def parse_gitlab_diff_response(self, changes: list[dict[str, Any]]) -> MRDiff:
         """

@@ -187,39 +187,6 @@ class GitLabClient:
         """
         return self.post_comment(body)
 
-    def is_duplicate_comment(
-        self,
-        body: str,
-    ) -> bool:
-        """
-        Check if a similar comment already exists.
-
-        Args:
-            body: Comment body to check
-
-        Returns:
-            True if duplicate found, False otherwise
-        """
-        existing = self.get_existing_comments()
-
-        # Normalize body for comparison
-        normalized_body = " ".join(body.split())
-
-        for comment in existing:
-            # Check if it's a bot comment (from this reviewer)
-            if not self._is_bot_comment(comment):
-                continue
-
-            # Check body similarity
-            existing_body = comment.get("body", "")
-            normalized_existing = " ".join(existing_body.split())
-
-            # Simple deduplication: check if core message is the same
-            if self._messages_similar(normalized_body, normalized_existing):
-                return True
-
-        return False
-
     def is_duplicate_summary_comment(self, body: str) -> bool:
         """
         Check if an identical summary comment already exists.
@@ -400,13 +367,3 @@ class GitLabClient:
                     return True
 
         return False
-
-    def get_commit_id(self) -> str | None:
-        """
-        Get the latest commit SHA for the merge request.
-
-        Returns:
-            Commit SHA or None if not found
-        """
-        mr_info = self.get_merge_request_info()
-        return mr_info.get("sha") or mr_info.get("diff_refs", {}).get("head_sha")
