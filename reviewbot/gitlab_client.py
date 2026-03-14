@@ -177,10 +177,10 @@ class GitLabClient:
 
     def is_duplicate_summary_comment(self, body: str) -> bool:
         """
-        Check if an identical summary comment already exists.
+        Check if a summary comment from the bot already exists.
 
-        For summary comments, we check for exact or near-exact matches
-        by comparing the main content sections.
+        We check for any existing summary comment from the bot by looking
+        for the main header (e.g., "## AI Code Review Summary" or "## ИИ код-ревью").
 
         Args:
             body: Summary comment body to check
@@ -190,130 +190,24 @@ class GitLabClient:
         """
         existing = self.get_existing_comments()
 
-        # Extract key sections from the new comment
-        new_sections = self._extract_summary_sections(body)
-
+        # Check if we already posted a summary comment
         for comment in existing:
-            # Check if it's a bot comment
             if not self._is_bot_comment(comment):
                 continue
 
             existing_body = comment.get("body", "")
 
-            # Extract sections from existing comment
-            existing_sections = self._extract_summary_sections(existing_body)
+            # Check for summary header (any language variant)
+            summary_headers = [
+                "## AI Code Review Summary",
+                "## ИИ код-ревью",
+            ]
 
-            # Compare sections - if all match, it's a duplicate
-            if self._sections_match(new_sections, existing_sections):
-                return True
+            for header in summary_headers:
+                if header in existing_body:
+                    return True
 
         return False
-
-    def _extract_summary_sections(self, body: str) -> dict[str, str]:
-        """
-        Extract main sections from a summary comment.
-
-        Args:
-            body: Summary comment body
-
-        Returns:
-            Dictionary with section names and their content
-        """
-        import re
-
-        sections = {}
-
-        # Pattern to match markdown headers and their content
-        header_pattern = r"^### (.+)$"
-        current_header = None
-        current_content = []
-
-        for line in body.split("\n"):
-            header_match = re.match(header_pattern, line.strip())
-            if header_match:
-                # Save previous section
-                if current_header:
-                    sections[current_header.lower()] = " ".join(current_content).strip()
-
-                # Start new section
-                current_header = header_match.group(1)
-                current_content = []
-            elif current_header and line.strip():
-                current_content.append(line.strip())
-
-        # Save last section
-        if current_header:
-            sections[current_header.lower()] = " ".join(current_content).strip()
-
-        return sections
-
-    def _sections_match(
-        self,
-        sections1: dict[str, str],
-        sections2: dict[str, str],
-        threshold: float = 0.9,
-    ) -> bool:
-        """
-        Check if two sets of sections match.
-
-        Args:
-            sections1: First set of sections
-            sections2: Second set of sections
-            threshold: Similarity threshold
-
-        Returns:
-            True if sections match, False otherwise
-        """
-        # If no sections extracted, fall back to full text comparison
-        if not sections1 or not sections2:
-            return False
-
-        # Check if same sections exist
-        if set(sections1.keys()) != set(sections2.keys()):
-            return False
-
-        # Compare each section
-        matches = 0
-        for section_name in sections1:
-            content1 = sections1[section_name]
-            content2 = sections2[section_name]
-
-            # Normalize and compare
-            norm1 = " ".join(content1.split()).lower()
-            norm2 = " ".join(content2.split()).lower()
-
-            # Check for high similarity
-            if norm1 == norm2:
-                matches += 1
-            elif self._text_similarity(norm1, norm2) >= threshold:
-                matches += 1
-
-        # All sections must match
-        return matches == len(sections1)
-
-    def _text_similarity(self, text1: str, text2: str) -> float:
-        """
-        Calculate similarity between two texts.
-
-        Uses simple word overlap ratio.
-
-        Args:
-            text1: First text
-            text2: Second text
-
-        Returns:
-            Similarity ratio between 0 and 1
-        """
-        words1 = set(text1.split())
-        words2 = set(text2.split())
-
-        if not words1 or not words2:
-            return 0.0
-
-        intersection = words1 & words2
-        union = words1 | words2
-
-        return len(intersection) / len(union) if union else 0.0
 
     def _is_bot_comment(self, comment: dict[str, Any]) -> bool:
         """Check if comment is from the review bot."""
