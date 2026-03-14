@@ -137,29 +137,29 @@ docker-compose up reviewbot
 
 ### Популярные провайдеры
 
-| Провайдер | LLM_BASE_URL | Пример модели | Цена за 1M токенов |
-|-----------|--------------|---------------|-------------------|
-| **OpenAI (ChatGPT)** | `https://api.openai.com/v1` | `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo` | от $0.15 |
-| **Anthropic (Claude)** | `https://api.anthropic.com/v1` | `claude-sonnet-4-20250514`, `claude-3-5-sonnet-latest` | от $3 |
-| **Google (Gemini)** | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.5-flash`, `gemini-2.5-pro` | от $0.075 |
-| **Azure OpenAI** | `https://{resource}.openai.azure.com/openai/deployments/{deployment}` | `gpt-4o`, `gpt-4-turbo` | от $2 |
+| Провайдер | LLM_BASE_URL | Пример модели |
+|-----------|--------------|---------------|
+| **OpenAI (ChatGPT)** | `https://api.openai.com/v1` | `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo` |
+| **Anthropic (Claude)** | `https://api.anthropic.com/v1` | `claude-sonnet-4-20250514`, `claude-3-5-sonnet-latest` |
+| **Google (Gemini)** | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.5-flash`, `gemini-2.5-pro` |
+| **Azure OpenAI** | `https://{resource}.openai.azure.com/openai/deployments/{deployment}` | `gpt-4o`, `gpt-4-turbo` |
 
 ### Бюджетные альтернативы
 
-| Провайдер | LLM_BASE_URL | Пример модели | Цена за 1M токенов |
-|-----------|--------------|---------------|-------------------|
-| **Cloud.ru** (по умолчанию) | `https://foundation-models.api.cloud.ru/v1` | `Qwen/Qwen3-Coder-480B-A35B-Instruct` | ~$0.20 |
-| **Together AI** | `https://api.together.xyz/v1` | `Qwen/Qwen2.5-Coder-32B-Instruct` | ~$0.18 |
-| **DeepInfra** | `https://api.deepinfra.com/v1/openai` | `Qwen/Qwen2.5-Coder-32B-Instruct` | ~$0.09 |
-| **Groq** | `https://api.groq.com/openai/v1` | `llama-3.1-70b-versatile` | ~$0.40 |
+| Провайдер | LLM_BASE_URL | Пример модели |
+|-----------|--------------|---------------|
+| **Cloud.ru** (по умолчанию) | `https://foundation-models.api.cloud.ru/v1` | `Qwen/Qwen3-Coder-480B-A35B-Instruct` |
+| **Together AI** | `https://api.together.xyz/v1` | `Qwen/Qwen2.5-Coder-32B-Instruct` |
+| **DeepInfra** | `https://api.deepinfra.com/v1/openai` | `Qwen/Qwen2.5-Coder-32B-Instruct` |
+| **Groq** | `https://api.groq.com/openai/v1` | `llama-3.1-70b-versatile` |
 
 ### Локальные решения
 
-| Провайдер | LLM_BASE_URL | Пример модели | Цена |
-|-----------|--------------|---------------|------|
-| **Ollama** | `http://localhost:11434/v1` | `qwen2.5-coder:32b`, `llama3.1:8b` | Бесплатно |
-| **LM Studio** | `http://localhost:1234/v1` | Любые GGUF модели | Бесплатно |
-| **vLLM** | `http://localhost:8000/v1` | Любые модели с HuggingFace | Бесплатно |
+| Провайдер | LLM_BASE_URL | Пример модели |
+|-----------|--------------|---------------|
+| **Ollama** | `http://localhost:11434/v1` | `qwen2.5-coder:32b`, `llama3.1:8b` |
+| **LM Studio** | `http://localhost:1234/v1` | Любые GGUF модели |
+| **vLLM** | `http://localhost:8000/v1` | Любые модели с HuggingFace |
 
 ### Пример для OpenAI (ChatGPT)
 
