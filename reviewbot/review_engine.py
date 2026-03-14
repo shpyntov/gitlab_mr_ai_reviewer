@@ -182,14 +182,9 @@ class ReviewEngine:
         # Generate review
         summary = self.llm_client.review_summary(all_changes, prompt)
 
-        # Post comment
+        # Post or update comment
         comment_body = self._format_summary_comment(summary)
-
-        if not self.gitlab_client.is_duplicate_summary_comment(comment_body):
-            self.gitlab_client.post_summary_comment(comment_body)
-            logger.info("[INFO] Summary comment posted")
-        else:
-            logger.info("[INFO] Skipping duplicate summary comment")
+        self.gitlab_client.post_summary_comment(comment_body)
 
         return True
 

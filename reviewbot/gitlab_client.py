@@ -163,30 +163,32 @@ class GitLabClient:
         response = self._make_request("POST", endpoint, data)
         return response.json()
 
-    def post_summary_comment(self, body: str) -> dict[str, Any]:
+    def update_comment(self, comment_id: int, body: str) -> dict[str, Any]:
         """
-        Post a summary comment to the MR discussion.
+        Update an existing comment on the merge request.
 
         Args:
-            body: Summary comment text
+            comment_id: ID of the comment to update
+            body: New comment text (markdown supported)
 
         Returns:
-            Created comment data
+            Updated comment data
         """
-        return self.post_comment(body)
+        endpoint = f"/projects/{self.config.project_id}/merge_requests/{self.config.merge_request_iid}/notes/{comment_id}"
 
-    def is_duplicate_summary_comment(self, body: str) -> bool:
+        data: dict[str, Any] = {"body": body}
+
+        logger.info(f"[INFO] Updating comment {comment_id}")
+
+        response = self._make_request("PUT", endpoint, data)
+        return response.json()
+
+    def find_summary_comment(self) -> dict[str, Any] | None:
         """
-        Check if a summary comment from the bot already exists.
-
-        We check for any existing summary comment by looking
-        for the main header (e.g., "## AI Code Review Summary" or "## ИИ код-ревью").
-
-        Args:
-            body: Summary comment body to check
+        Find an existing summary comment by looking for the main header.
 
         Returns:
-            True if duplicate found, False otherwise
+            Comment dict if found, None otherwise
         """
         existing = self.get_existing_comments()
 
@@ -201,7 +203,30 @@ class GitLabClient:
 
             for header in summary_headers:
                 if header in existing_body:
-                    logger.info("[INFO] Found existing summary comment, skipping duplicate")
-                    return True
+                    return comment
 
-        return False
+        return None
+
+    def post_summary_comment(self, body: str) -> dict[str, Any]:
+        """
+        Post or update a summary comment to the MR discussion.
+
+        If a summary comment already exists, it will be updated.
+        Otherwise, a new comment will be created.
+
+        Args:
+            body: Summary comment text
+
+        Returns:
+            Created or updated comment data
+        """
+        # Check for existing summary comment
+        existing_comment = self.find_summary_comment()
+
+        if existing_comment:
+            comment_id = existing_comment.get("id")
+            if comment_id:
+                return self.update_comment(comment_id, body)
+
+        # No existing comment, create new one
+        return self.post_comment(body)
