@@ -123,18 +123,6 @@ class GitLabClient:
 
         return changes
 
-    def get_merge_request_info(self) -> dict[str, Any]:
-        """
-        Get merge request metadata.
-
-        Returns:
-            MR information dictionary
-        """
-        endpoint = f"/projects/{self.config.project_id}/merge_requests/{self.config.merge_request_iid}"
-
-        response = self._make_request("GET", endpoint)
-        return response.json()
-
     def get_existing_comments(self) -> list[dict[str, Any]]:
         """
         Get all existing comments on the merge request.
