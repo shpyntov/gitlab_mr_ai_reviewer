@@ -87,7 +87,7 @@ ai_code_review:
 | `GITLAB_PROJECT_ID` | **Да** | — | ID проекта GitLab |
 | `GITLAB_MERGE_REQUEST_ID` | **Да** | — | ID merge request |
 | `GITLAB_BASE_URL` | **Да** | — | URL GitLab (например, `https://gitlab.com`) |
-| `LLM_BASE_URL` | Нет | `https://foundation-models.api.cloud.ru/v1` | URL **OpenAI-compatible API**. Поддерживаются любые провайдеры: OpenAI (ChatGPT), Anthropic (Claude), Google (Gemini), Azure OpenAI, Cloud.ru, Together AI, Groq, Ollama (локально) и др. См. [Альтернативные LLM провайдеры](#альтернативные-llm-провайдеры) |
+| `LLM_BASE_URL` | Нет | `https://foundation-models.api.cloud.ru/v1` | URL API LLM провайдера. Должен поддерживать **OpenAI-compatible API** (тот же формат запросов/ответов, что у OpenAI). Примеры: OpenAI, Anthropic, Google, Azure, Cloud.ru, Together AI, Groq, Ollama и др. |
 | `LLM_MODEL` | Нет | `Qwen/Qwen3-Coder-480B-A35B-Instruct` | Имя модели LLM |
 | `LLM_TEMPERATURE` | Нет | `0.3` | Температура генерации (0.0–1.0) |
 | `LLM_MAX_TOKENS` | Нет | `2000` | Максимум токенов в ответе |
