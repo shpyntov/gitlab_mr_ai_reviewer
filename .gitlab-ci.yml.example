@@ -13,14 +13,22 @@ ai_code_review:
   rules:
     # Only run on merge request pipelines
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_MERGE_REQUEST_ID
+  variables:
+    # Required variables (add these to Settings → CI/CD → Variables)
+    LLM_API_KEY: $LLM_API_KEY_SECRET
+    GITLAB_TOKEN: $GITLAB_TOKEN_SECRET
+    # Auto-filled from GitLab CI environment
+    GITLAB_PROJECT_ID: $CI_PROJECT_ID
+    GITLAB_MERGE_REQUEST_ID: $CI_MERGE_REQUEST_IID
+    GITLAB_BASE_URL: $CI_SERVER_URL
   script:
     - python -m reviewbot.main
   allow_failure: true  # Don't block MR on review failures
   timeout: 10m
-  variables:
-    # Optional: Override default LLM settings
-    # LLM_MODEL: "Qwen/Qwen3-Coder-480B-A35B-Instruct"
-    # LLM_TEMPERATURE: "0.3"
-    # REVIEW_LANGUAGE: "ru"
+  # Optional: Override default LLM settings
+  # variables:
+  #   LLM_MODEL: "Qwen/Qwen3-Coder-480B-A35B-Instruct"
+  #   LLM_TEMPERATURE: "0.3"
+  #   REVIEW_LANGUAGE: "ru"
+
 
