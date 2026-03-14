@@ -77,7 +77,7 @@ ai_code_review:
 | `GITLAB_BASE_URL` | Да | Базовый URL GitLab (например, `https://gitlab.com`) |
 | `REVIEW_LANGUAGE` | Нет | Язык комментариев рецензии (по умолчанию: `ru`). Доступные значения: `en`, `ru` |
 | `LLM_MODEL` | Нет | Имя модели LLM (по умолчанию: `Qwen/Qwen3-Coder-480B-A35B-Instruct`) |
-| `LLM_BASE_URL` | Нет | Базовый URL API LLM (по умолчанию: `https://foundation-models.api.cloud.ru/v1`) |
+| `LLM_BASE_URL` | Нет | URL OpenAI-compatible API (по умолчанию: `https://foundation-models.api.cloud.ru/v1`) |
 | `LLM_TEMPERATURE` | Нет | Параметр temperature для LLM (по умолчанию: `0.3`) |
 | `LLM_MAX_TOKENS` | Нет | Максимальное количество токенов в ответе LLM (по умолчанию: `2000`) |
 
