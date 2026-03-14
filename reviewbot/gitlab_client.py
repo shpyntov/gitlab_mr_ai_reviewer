@@ -174,7 +174,9 @@ class GitLabClient:
         Returns:
             Updated comment data
         """
-        endpoint = f"/projects/{self.config.project_id}/merge_requests/{self.config.merge_request_iid}/notes/{comment_id}"
+        endpoint = (
+            f"/projects/{self.config.project_id}/merge_requests/{self.config.merge_request_iid}/notes/{comment_id}"
+        )
 
         data: dict[str, Any] = {"body": body}
 
