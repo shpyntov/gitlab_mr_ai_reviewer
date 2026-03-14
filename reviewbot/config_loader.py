@@ -8,9 +8,6 @@ import os
 from pathlib import Path
 from typing import Any
 
-import yaml
-
-
 DEFAULT_CONFIG: dict[str, Any] = {
     "review": {
         "languages": ["python", "go", "javascript", "typescript", "java", "cpp", "c", "rust"],

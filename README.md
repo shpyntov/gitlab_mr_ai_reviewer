@@ -248,5 +248,36 @@ MIT License — подробности в файле [LICENSE](LICENSE).
 1. Форкните репозиторий
 2. Создайте ветку для новой функциональности
 3. Внесите изменения
-4. Запустите тесты (если применимо)
+4. Запустите линтер: `ruff check reviewbot/`
 5. Отправьте Merge Request
+
+## Разработка
+
+### Установка зависимостей
+
+```bash
+pip install -r requirements.txt
+```
+
+### Запуск линтера
+
+Проект использует [ruff](https://github.com/astral-sh/ruff) для линтинга и форматирования кода:
+
+```bash
+# Проверка кода
+ruff check reviewbot/
+
+# Автоисправление проблем
+ruff check --fix reviewbot/
+
+# Форматирование кода
+ruff format reviewbot/
+```
+
+### Конфигурация ruff
+
+Настройки находятся в файле `ruff.toml`:
+- Длина строки: 120 символов
+- Проверка: E, F, I, W, N, B, C4, UP
+- Стиль импортов: isort
+- Стиль docstring: Google

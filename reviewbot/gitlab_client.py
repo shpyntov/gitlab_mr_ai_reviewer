@@ -4,7 +4,6 @@ GitLab API client for interacting with Merge Requests.
 Handles authentication, API calls, and comment management.
 """
 
-import json
 import logging
 import time
 from dataclasses import dataclass
@@ -181,7 +180,7 @@ class GitLabClient:
 
         data: dict[str, Any] = {"body": body}
 
-        logger.info(f"[INFO] Posting comment")
+        logger.info("[INFO] Posting comment")
 
         response = self._make_request("POST", endpoint, data)
         return response.json()

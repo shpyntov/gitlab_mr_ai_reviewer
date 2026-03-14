@@ -8,3 +8,6 @@ requests>=2.31.0
 
 # YAML configuration parsing
 pyyaml>=6.0
+
+# Code linting
+ruff>=0.1.0

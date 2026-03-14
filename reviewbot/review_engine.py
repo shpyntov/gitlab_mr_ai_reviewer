@@ -6,7 +6,6 @@ Coordinates between GitLab client, LLM client, and diff parser.
 
 import logging
 from pathlib import Path
-from typing import Any
 
 from .config_loader import ConfigLoader
 from .diff_parser import DiffParser, FileDiff, MRDiff
@@ -83,7 +82,7 @@ class ReviewEngine:
         logger.info(f"[INFO] Loading prompt from {file_path}")
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 key = prompt_file.replace("_prompt.md", "")
                 self._prompt_templates[key] = f.read()
             logger.info(f"[INFO] Prompt loaded successfully with key: {key}")

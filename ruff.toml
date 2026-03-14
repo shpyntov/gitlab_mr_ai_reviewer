@@ -1,0 +1,46 @@
+# Ruff configuration for GitLab MR AI Reviewer
+
+# Maximum line length
+line-length = 120
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "N", "B", "C4", "UP"]
+
+# Ignore line-length for specific cases
+ignore = ["E501"]
+
+# Allow fix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when they start with underscore
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+# Ignore unused imports in __init__.py files
+"__init__.py" = ["F401"]
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Use 4 spaces for indentation
+indent-style = "space"
+
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Use Unix line endings
+line-ending = "auto"
+
+[lint.isort]
+# Use single line for imports
+force-single-line = false
+
+# Known first-party modules
+known-first-party = ["reviewbot"]
+
+[lint.pydocstyle]
+# Use Google style for docstrings
+convention = "google"
