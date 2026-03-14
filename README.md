@@ -87,7 +87,7 @@ ai_code_review:
 | `GITLAB_PROJECT_ID` | **Да** | — | ID проекта GitLab |
 | `GITLAB_MERGE_REQUEST_ID` | **Да** | — | ID merge request |
 | `GITLAB_BASE_URL` | **Да** | — | URL GitLab (например, `https://gitlab.com`) |
-| `LLM_BASE_URL` | Нет | `https://foundation-models.api.cloud.ru/v1` | URL OpenAI-compatible API |
+| `LLM_BASE_URL` | Нет | `https://foundation-models.api.cloud.ru/v1` | URL **OpenAI-compatible API**. Поддерживаются любые провайдеры с совместимым API: Cloud.ru, YandexGPT, Together AI, Groq, Ollama (локально) и др. |
 | `LLM_MODEL` | Нет | `Qwen/Qwen3-Coder-480B-A35B-Instruct` | Имя модели LLM |
 | `LLM_TEMPERATURE` | Нет | `0.3` | Температура генерации (0.0–1.0) |
 | `LLM_MAX_TOKENS` | Нет | `2000` | Максимум токенов в ответе |
@@ -127,6 +127,42 @@ GITLAB_BASE_URL=https://gitlab.com
 
 ```bash
 docker-compose up reviewbot
+```
+
+---
+
+## Альтернативные LLM провайдеры
+
+Проект поддерживает любые API с **OpenAI-compatible** интерфейсом.
+
+| Провайдер | LLM_BASE_URL | Пример модели |
+|-----------|--------------|---------------|
+| **Cloud.ru** (по умолчанию) | `https://foundation-models.api.cloud.ru/v1` | `Qwen/Qwen3-Coder-480B-A35B-Instruct` |
+| **Together AI** | `https://api.together.xyz/v1` | `Qwen/Qwen2.5-Coder-32B-Instruct` |
+| **Groq** | `https://api.groq.com/openai/v1` | `llama-3.1-70b-versatile` |
+| **DeepInfra** | `https://api.deepinfra.com/v1/openai` | `Qwen/Qwen2.5-Coder-32B-Instruct` |
+| **Ollama** (локально) | `http://localhost:11434/v1` | `qwen2.5-coder:32b` |
+| **YandexGPT** | `https://llm.api.cloud.yandex.net/foundationModels/v1` | `yandexgpt/latest` |
+
+### Пример для Ollama (локально)
+
+```bash
+docker run --rm \
+  --network host \
+  -e LLM_API_KEY=ollama \
+  -e LLM_BASE_URL=http://localhost:11434/v1 \
+  -e LLM_MODEL=qwen2.5-coder:32b \
+  ...
+```
+
+### Пример для Together AI
+
+```bash
+docker run --rm \
+  -e LLM_API_KEY=<your_together_api_key> \
+  -e LLM_BASE_URL=https://api.together.xyz/v1 \
+  -e LLM_MODEL=Qwen/Qwen2.5-Coder-32B-Instruct \
+  ...
 ```
 
 ---
