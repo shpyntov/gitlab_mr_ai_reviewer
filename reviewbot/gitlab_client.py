@@ -323,35 +323,3 @@ class GitLabClient:
         # Check for bot username patterns
         bot_patterns = ["reviewbot", "ai-reviewer", "gitlab-ai", "ai_bot"]
         return any(pattern in username.lower() for pattern in bot_patterns)
-
-    def _messages_similar(self, msg1: str, msg2: str, threshold: float = 0.8) -> bool:
-        """
-        Check if two messages are similar enough to be duplicates.
-
-        Simple implementation using substring matching.
-        """
-        if not msg1 or not msg2:
-            return False
-
-        # Extract issue/suggestion content
-        msg1_lower = msg1.lower()
-        msg2_lower = msg2.lower()
-
-        # Check if one contains the other
-        if msg1_lower in msg2_lower or msg2_lower in msg1_lower:
-            return True
-
-        # Check for common key phrases
-        key_phrases = ["issue:", "suggestion:", "warning:", "error:"]
-        for phrase in key_phrases:
-            if phrase in msg1_lower and phrase in msg2_lower:
-                # Extract content after the phrase
-                idx1 = msg1_lower.find(phrase)
-                idx2 = msg2_lower.find(phrase)
-                content1 = msg1[idx1 + len(phrase) : idx1 + len(phrase) + 50].strip()
-                content2 = msg2[idx2 + len(phrase) : idx2 + len(phrase) + 50].strip()
-
-                if content1 and content2 and content1.lower() == content2.lower():
-                    return True
-
-        return False
