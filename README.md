@@ -135,14 +135,46 @@ docker-compose up reviewbot
 
 Проект поддерживает любые API с **OpenAI-compatible** интерфейсом.
 
-| Провайдер | LLM_BASE_URL | Пример модели |
-|-----------|--------------|---------------|
-| **Cloud.ru** (по умолчанию) | `https://foundation-models.api.cloud.ru/v1` | `Qwen/Qwen3-Coder-480B-A35B-Instruct` |
-| **Together AI** | `https://api.together.xyz/v1` | `Qwen/Qwen2.5-Coder-32B-Instruct` |
-| **Groq** | `https://api.groq.com/openai/v1` | `llama-3.1-70b-versatile` |
-| **DeepInfra** | `https://api.deepinfra.com/v1/openai` | `Qwen/Qwen2.5-Coder-32B-Instruct` |
-| **Ollama** (локально) | `http://localhost:11434/v1` | `qwen2.5-coder:32b` |
-| **YandexGPT** | `https://llm.api.cloud.yandex.net/foundationModels/v1` | `yandexgpt/latest` |
+### Популярные провайдеры
+
+| Провайдер | LLM_BASE_URL | Пример модели | Цена за 1M токенов |
+|-----------|--------------|---------------|-------------------|
+| **OpenAI (ChatGPT)** | `https://api.openai.com/v1` | `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo` | от $0.15 |
+| **Anthropic (Claude)** | `https://api.anthropic.com/v1` | `claude-sonnet-4-20250514`, `claude-3-5-sonnet-latest` | от $3 |
+| **Google (Gemini)** | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.5-flash`, `gemini-2.5-pro` | от $0.075 |
+| **Azure OpenAI** | `https://{resource}.openai.azure.com/openai/deployments/{deployment}` | `gpt-4o`, `gpt-4-turbo` | от $2 |
+
+### Бюджетные альтернативы
+
+| Провайдер | LLM_BASE_URL | Пример модели | Цена за 1M токенов |
+|-----------|--------------|---------------|-------------------|
+| **Cloud.ru** (по умолчанию) | `https://foundation-models.api.cloud.ru/v1` | `Qwen/Qwen3-Coder-480B-A35B-Instruct` | ~$0.20 |
+| **Together AI** | `https://api.together.xyz/v1` | `Qwen/Qwen2.5-Coder-32B-Instruct` | ~$0.18 |
+| **DeepInfra** | `https://api.deepinfra.com/v1/openai` | `Qwen/Qwen2.5-Coder-32B-Instruct` | ~$0.09 |
+| **Groq** | `https://api.groq.com/openai/v1` | `llama-3.1-70b-versatile` | ~$0.40 |
+
+### Локальные решения
+
+| Провайдер | LLM_BASE_URL | Пример модели | Цена |
+|-----------|--------------|---------------|------|
+| **Ollama** | `http://localhost:11434/v1` | `qwen2.5-coder:32b`, `llama3.1:8b` | Бесплатно |
+| **LM Studio** | `http://localhost:1234/v1` | Любые GGUF модели | Бесплатно |
+| **vLLM** | `http://localhost:8000/v1` | Любые модели с HuggingFace | Бесплатно |
+
+### Пример для OpenAI (ChatGPT)
+
+```bash
+docker run --rm \
+  -e LLM_API_KEY=sk-your_openai_api_key \
+  -e LLM_BASE_URL=https://api.openai.com/v1 \
+  -e LLM_MODEL=gpt-4o \
+  -e GITLAB_TOKEN=your_gitlab_token \
+  -e GITLAB_PROJECT_ID=8321 \
+  -e GITLAB_MERGE_REQUEST_ID=874 \
+  -e GITLAB_BASE_URL=https://gitlab.com \
+  -e REVIEW_LANGUAGE=ru \
+  ghcr.io/shpyntov/gitlab_mr_ai_reviewer:1.0.2
+```
 
 ### Пример для Ollama (локально)
 
@@ -152,17 +184,12 @@ docker run --rm \
   -e LLM_API_KEY=ollama \
   -e LLM_BASE_URL=http://localhost:11434/v1 \
   -e LLM_MODEL=qwen2.5-coder:32b \
-  ...
-```
-
-### Пример для Together AI
-
-```bash
-docker run --rm \
-  -e LLM_API_KEY=<your_together_api_key> \
-  -e LLM_BASE_URL=https://api.together.xyz/v1 \
-  -e LLM_MODEL=Qwen/Qwen2.5-Coder-32B-Instruct \
-  ...
+  -e GITLAB_TOKEN=your_gitlab_token \
+  -e GITLAB_PROJECT_ID=8321 \
+  -e GITLAB_MERGE_REQUEST_ID=874 \
+  -e GITLAB_BASE_URL=https://gitlab.com \
+  -e REVIEW_LANGUAGE=ru \
+  ghcr.io/shpyntov/gitlab_mr_ai_reviewer:1.0.2
 ```
 
 ---
