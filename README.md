@@ -29,8 +29,8 @@
 ### 1. Получить образ
 
 ```bash
-# Готовый образ из GHCR
-docker pull ghcr.io/shpyntov/gitlab_mr_ai_reviewer:latest
+# Готовый образ из GHCR (укажите нужный тег)
+docker pull ghcr.io/shpyntov/gitlab_mr_ai_reviewer:v1.0.1
 ```
 
 Или собрать локально:
@@ -48,7 +48,7 @@ docker run --rm \
   -e GITLAB_PROJECT_ID=12345 \
   -e GITLAB_MERGE_REQUEST_ID=67 \
   -e GITLAB_BASE_URL=https://gitlab.com \
-  ghcr.io/shpyntov/gitlab_mr_ai_reviewer:latest
+  ghcr.io/shpyntov/gitlab_mr_ai_reviewer:v1.0.1
 ```
 
 ### 3. Интегрировать с GitLab CI
@@ -57,7 +57,7 @@ docker run --rm \
 
 ```yaml
 ai_code_review:
-  image: ghcr.io/shpyntov/gitlab_mr_ai_reviewer:latest
+  image: ghcr.io/shpyntov/gitlab_mr_ai_reviewer:v1.0.1
   stage: test
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
