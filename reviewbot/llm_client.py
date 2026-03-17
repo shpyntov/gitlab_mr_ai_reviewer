@@ -120,8 +120,7 @@ class LLMClient:
             content_lower = content.lower().strip()
             if any(pattern in content_lower for pattern in no_issues_patterns):
                 logger.info(
-                    "[INFO] LLM returned standard 'no issues' message. "
-                    "Replacing with localized detailed message."
+                    "[INFO] LLM returned standard 'no issues' message. Replacing with localized detailed message."
                 )
                 return self._generate_no_issues_message()
 
