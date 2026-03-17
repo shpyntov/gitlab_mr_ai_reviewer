@@ -180,7 +180,11 @@ class ReviewEngine:
         prompt = self._prompt_templates["summary_review"]
 
         # Generate review
-        summary = self.llm_client.review_summary(all_changes, prompt)
+        try:
+            summary = self.llm_client.review_summary(all_changes, prompt)
+        except Exception as e:
+            logger.error(f"[ERROR] Failed to generate review summary: {e}")
+            return False
 
         # Post or update comment
         comment_body = self._format_summary_comment(summary)

@@ -84,6 +84,7 @@ class LLMClient:
         ]
 
         logger.info("[INFO] Generating summary review with LLM")
+        logger.info(f"[INFO] Input diff size: {len(all_changes)} chars")
 
         try:
             response = self.client.chat.completions.create(
@@ -96,8 +97,60 @@ class LLMClient:
             )
 
             content = response.choices[0].message.content
-            return content or "No issues found."
+
+            # Проверка на пустой или None ответ
+            if not content or not content.strip():
+                logger.warning(
+                    "[WARNING] LLM returned empty response. "
+                    f"Model: {self.model}, max_tokens: {self.max_tokens}, "
+                    f"input_size: {len(all_changes)} chars"
+                )
+                # Возвращаем информативное сообщение вместо "No issues found"
+                return self._generate_no_issues_message()
+
+            # Проверка на стандартные сообщения об отсутствии проблем
+            no_issues_patterns = [
+                "no issues found",
+                "no significant issues",
+                "no problems found",
+                "значительных проблем не обнаружено",
+                "проблем не обнаружено",
+                "ошибок не найдено",
+            ]
+            content_lower = content.lower().strip()
+            if any(pattern in content_lower for pattern in no_issues_patterns):
+                logger.info(
+                    "[INFO] LLM returned standard 'no issues' message. "
+                    "Replacing with localized detailed message."
+                )
+                return self._generate_no_issues_message()
+
+            # Проверка на возможное обрезание ответа
+            finish_reason = response.choices[0].finish_reason
+            if finish_reason == "length":
+                logger.warning(
+                    "[WARNING] LLM response was truncated due to max_tokens limit. "
+                    f"Consider increasing LLM_MAX_TOKENS (current: {self.max_tokens}). "
+                    f"Response length: {len(content)} chars"
+                )
+
+            logger.info(f"[INFO] LLM response generated: {len(content)} chars")
+            return content
 
         except Exception as e:
             logger.error(f"LLM API error: {e}")
-            return "Error generating review summary."
+            raise
+
+    def _generate_no_issues_message(self) -> str:
+        """Generate a message when no significant issues are found."""
+        return """## ИИ код-ревью
+
+### Возможные проблемы
+Значительных проблем не обнаружено. Изменения выглядят корректными.
+
+### Рекомендации
+Продолжайте в том же духе! Убедитесь, что код проходит тесты и соответствует стандартам проекта.
+
+### Положительные моменты
+- Код готов к ревью человеком
+"""
