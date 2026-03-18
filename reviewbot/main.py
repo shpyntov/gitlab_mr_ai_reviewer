@@ -121,6 +121,9 @@ def main() -> int:
         # Run review
         success = review_engine.run_review()
 
+        # Log token usage summary
+        llm_client.log_session_summary()
+
         if success:
             logger.info("[INFO] Review completed successfully")
             return 0

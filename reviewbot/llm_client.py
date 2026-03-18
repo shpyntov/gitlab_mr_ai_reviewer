@@ -6,10 +6,30 @@ Integrates with OpenAI-compatible APIs for code analysis.
 
 import logging
 import os
+from dataclasses import dataclass
 
 from openai import OpenAI
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class TokenUsage:
+    """Token usage statistics."""
+
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
+
+
+@dataclass
+class TokenStats:
+    """Accumulated token statistics for a session."""
+
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
+    requests_count: int = 0
 
 
 class LLMClient:
@@ -44,6 +64,9 @@ class LLMClient:
         self.model = model or self.DEFAULT_MODEL
         self.temperature = temperature
         self.max_tokens = max_tokens
+
+        # Session token stats
+        self.session_stats = TokenStats()
 
         self.client = OpenAI(
             api_key=self.api_key,
@@ -98,6 +121,9 @@ class LLMClient:
 
             content = response.choices[0].message.content
 
+            # Log token usage
+            self._log_token_usage(response)
+
             # Проверка на пустой или None ответ
             if not content or not content.strip():
                 logger.warning(
@@ -139,6 +165,59 @@ class LLMClient:
         except Exception as e:
             logger.error(f"LLM API error: {e}")
             raise
+
+    def _log_token_usage(self, response) -> None:
+        """
+        Log token usage from API response.
+
+        Args:
+            response: OpenAI API response object
+        """
+        try:
+            usage = response.usage
+            if not usage:
+                return
+
+            prompt_tokens = getattr(usage, "prompt_tokens", 0)
+            completion_tokens = getattr(usage, "completion_tokens", 0)
+            total_tokens = getattr(usage, "total_tokens", 0)
+
+            # Update session stats
+            self.session_stats.prompt_tokens += prompt_tokens
+            self.session_stats.completion_tokens += completion_tokens
+            self.session_stats.total_tokens += total_tokens
+            self.session_stats.requests_count += 1
+
+            # Log token usage
+            logger.info(
+                f"[TOKENS] Request #{self.session_stats.requests_count}: "
+                f"input={prompt_tokens}, output={completion_tokens}, total={total_tokens} tokens"
+            )
+
+        except AttributeError as e:
+            logger.warning(f"[TOKENS] Could not extract token usage from response: {e}")
+
+    def get_session_stats(self) -> TokenStats:
+        """
+        Get accumulated token statistics for the current session.
+
+        Returns:
+            TokenStats object with accumulated statistics
+        """
+        return self.session_stats
+
+    def log_session_summary(self) -> None:
+        """Log a summary of token usage for the current session."""
+        stats = self.session_stats
+        if stats.requests_count == 0:
+            logger.info("[TOKENS] Session complete. No requests made.")
+            return
+
+        logger.info(
+            f"[TOKENS] Session summary: {stats.requests_count} request(s), "
+            f"{stats.total_tokens} total tokens "
+            f"(input: {stats.prompt_tokens}, output: {stats.completion_tokens})"
+        )
 
     def _generate_no_issues_message(self) -> str:
         """Generate a message when no significant issues are found."""
