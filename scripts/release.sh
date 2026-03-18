@@ -10,10 +10,25 @@ echo "Current version: $CURRENT_VERSION"
 # Parse version parts
 IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
 
-# Calculate new version (increment patch)
-NEW_PATCH=$((PATCH + 1))
-NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+# Get release type from argument (patch, minor, major)
+RELEASE_TYPE=${1:-patch}
 
+case $RELEASE_TYPE in
+    major)
+        NEW_MAJOR=$((MAJOR + 1))
+        NEW_VERSION="$NEW_MAJOR.0.0"
+        ;;
+    minor)
+        NEW_MINOR=$((MINOR + 1))
+        NEW_VERSION="$MAJOR.$NEW_MINOR.0"
+        ;;
+    patch|*)
+        NEW_PATCH=$((PATCH + 1))
+        NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+        ;;
+esac
+
+echo "Release type: $RELEASE_TYPE"
 echo "New version: $NEW_VERSION"
 
 # Update version in __init__.py
