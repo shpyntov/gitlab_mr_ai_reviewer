@@ -5,7 +5,7 @@
 from reviewbot.llm_client import TokenStats
 
 # Dataclass fields are used internally
-TokenStats.prompt_tokens
-TokenStats.completion_tokens
-TokenStats.total_tokens
-TokenStats.requests_count
+_ = TokenStats.prompt_tokens
+_ = TokenStats.completion_tokens
+_ = TokenStats.total_tokens
+_ = TokenStats.requests_count
