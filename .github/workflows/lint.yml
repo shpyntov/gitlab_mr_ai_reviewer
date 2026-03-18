@@ -33,4 +33,4 @@ jobs:
         run: ruff format --check .
 
       - name: Vulture dead code check
-        run: vulture . vulture_whitelist.py --min-confidence 80
+        run: vulture reviewbot/ --min-confidence 80
