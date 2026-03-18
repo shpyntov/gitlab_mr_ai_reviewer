@@ -57,8 +57,9 @@ git commit -m "chore: обновить версию до $NEW_VERSION" || echo "
 # Push commit
 git push
 
-# Create and push tag
-git tag "$NEW_VERSION"
-git push origin "$NEW_VERSION"
+# Create and push tag with 'v' prefix
+GIT_TAG="v$NEW_VERSION"
+git tag "$GIT_TAG"
+git push origin "$GIT_TAG"
 
-echo "✓ Release $NEW_VERSION completed!"
+echo "✓ Release $GIT_TAG completed!"
