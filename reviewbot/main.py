@@ -73,7 +73,10 @@ def main() -> int:
     setup_logging()
     logger = logging.getLogger(__name__)
 
-    logger.info("[INFO] GitLab MR AI Reviewer starting...")
+    # Print version
+    from reviewbot import __version__
+
+    logger.info(f"[INFO] GitLab MR AI Reviewer v{__version__} starting...")
 
     # Validate environment
     validate_env_vars()
