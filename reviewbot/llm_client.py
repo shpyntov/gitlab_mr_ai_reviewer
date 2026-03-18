@@ -14,15 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class TokenUsage:
-    """Token usage statistics."""
-
-    prompt_tokens: int = 0
-    completion_tokens: int = 0
-    total_tokens: int = 0
-
-
-@dataclass
 class TokenStats:
     """Accumulated token statistics for a session."""
 
