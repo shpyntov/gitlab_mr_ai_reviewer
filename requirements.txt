@@ -11,3 +11,6 @@ pyyaml>=6.0
 
 # Code linting
 ruff>=0.1.0
+
+# Dead code detection
+vulture>=2.0.0

@@ -116,13 +116,12 @@ class DiffParser:
 
         return added_lines
 
-    def build_context_diff(self, mr_diff: MRDiff, max_context_lines: int = 3) -> str:
+    def build_context_diff(self, mr_diff: MRDiff) -> str:
         """
         Build a readable diff with context for LLM consumption.
 
         Args:
             mr_diff: Parsed MR diff
-            max_context_lines: Maximum context lines around changes
 
         Returns:
             Formatted diff string for LLM

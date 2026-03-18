@@ -237,7 +237,7 @@ pip install -r requirements.txt
 
 ### Линтинг и форматирование
 
-Проект использует [ruff](https://github.com/astral-sh/ruff):
+Проект использует [ruff](https://github.com/astral-sh/ruff) и [vulture](https://github.com/jendrikseipp/vulture):
 
 ```bash
 # Проверка
@@ -248,12 +248,28 @@ ruff check --fix reviewbot/
 
 # Форматирование
 ruff format reviewbot/
+
+# Поиск неиспользуемого кода
+vulture . vulture_whitelist.py --min-confidence 80
 ```
 
 Конфигурация в `ruff.toml`:
 - Длина строки: 120 символов
-- Проверки: E, F, I, W, N, B, C4, UP
+- Проверки: E, F, I, W, N, B, C4, UP, F401, F841
 - Стиль docstring: Google
+
+### Pre-commit хуки (опционально)
+
+Для автоматических проверок перед каждым коммитом:
+
+```bash
+# Установка pre-commit
+pip install pre-commit
+pre-commit install
+
+# Запуск на всех файлах
+pre-commit run --all-files
+```
 
 ---
 

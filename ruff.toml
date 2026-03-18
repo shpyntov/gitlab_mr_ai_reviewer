@@ -4,8 +4,10 @@
 line-length = 120
 
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W", "N", "B", "C4", "UP"]
+# Enable pycodestyle (`E`), Pyflakes (`F`), isort (`I`), pyupgrade (`UP`),
+# flake8-bugbear (`B`), flake8-comprehensions (`C4`),
+# and unused variables/functions detection
+select = ["E", "F", "I", "W", "N", "B", "C4", "UP", "F401", "F841"]
 
 # Ignore line-length for specific cases
 ignore = ["E501"]
