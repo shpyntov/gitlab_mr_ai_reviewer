@@ -276,8 +276,8 @@ pre-commit run --all-files
 Для выпуска нового релиза используйте скрипт:
 
 ```bash
-# Patch-релиз (1.0.8 → 1.0.9) - по умолчанию
-./scripts/release.sh
+# Patch-релиз (1.0.8 → 1.0.9)
+./scripts/release.sh patch
 
 # Minor-релиз (1.0.8 → 1.1.0)
 ./scripts/release.sh minor

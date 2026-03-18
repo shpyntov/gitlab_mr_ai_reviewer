@@ -11,7 +11,18 @@ echo "Current version: $CURRENT_VERSION"
 IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
 
 # Get release type from argument (patch, minor, major)
-RELEASE_TYPE=${1:-patch}
+RELEASE_TYPE=$1
+
+if [[ -z "$RELEASE_TYPE" ]]; then
+    echo "Error: Release type is required."
+    echo "Usage: $0 <patch|minor|major>"
+    echo ""
+    echo "Examples:"
+    echo "  $0 patch   # 1.0.8 → 1.0.9"
+    echo "  $0 minor   # 1.0.8 → 1.1.0"
+    echo "  $0 major   # 1.0.8 → 2.0.0"
+    exit 1
+fi
 
 case $RELEASE_TYPE in
     major)
@@ -22,9 +33,14 @@ case $RELEASE_TYPE in
         NEW_MINOR=$((MINOR + 1))
         NEW_VERSION="$MAJOR.$NEW_MINOR.0"
         ;;
-    patch|*)
+    patch)
         NEW_PATCH=$((PATCH + 1))
         NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+        ;;
+    *)
+        echo "Error: Invalid release type '$RELEASE_TYPE'"
+        echo "Valid types: patch, minor, major"
+        exit 1
         ;;
 esac
 
